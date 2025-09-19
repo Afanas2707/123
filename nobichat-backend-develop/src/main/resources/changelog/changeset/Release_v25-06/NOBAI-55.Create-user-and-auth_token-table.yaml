@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-table
+      author: Alexey Afanasievskiy
+      changes:
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+  - changeSet:
+      id: create-auth_token-table-and-fk
+      author: Alexey Afanasievskiy
+      changes:
+        - createTable:
+            tableName: auth_token
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: token
+                  type: VARCHAR(1000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: token_type
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiration_time
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - addForeignKeyConstraint:
+                  baseColumnNames: user_id
+                  baseTableName: auth_token
+                  constraintName: fk_auth_token_user
+                  onDelete: CASCADE
+                  onUpdate: CASCADE
+                  referencedColumnNames: id
+                  referencedTableName: user
+                  deferrable: true
+                  initiallyDeferred: true

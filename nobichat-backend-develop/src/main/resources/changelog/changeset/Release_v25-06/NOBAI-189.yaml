@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-template_id-to-chat_messages-and-mode-to-templates
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: template_id
+                  type: UUID
+        - addColumn:
+            tableName: templates
+            columns:
+              - column:
+                  name: mode
+                  type: VARCHAR(255)
+        - addForeignKeyConstraint:
+            baseColumnNames: template_id
+            baseTableName: chat_messages
+            constraintName: fk_chat_messages_templates
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: templates
+            deferrable: true
+            initiallyDeferred: true

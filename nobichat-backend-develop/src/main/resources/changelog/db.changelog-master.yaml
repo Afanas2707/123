@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-55.Create-user-and-auth_token-table.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-55.Create-organization-table.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-75.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-66.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-95.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-115.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-55.Create-images-table.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-180.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-189.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-200.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-210.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-220.yaml
