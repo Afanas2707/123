@@ -1,0 +1,357 @@
+databaseChangeLog:
+  - changeSet:
+      id: NOBAI-300-create-ontology-normalized-schema
+      author: ChatGPT
+      changes:
+        - createTable:
+            tableName: ontology_entity
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_friendly_name
+                  type: VARCHAR(255)
+              - column:
+                  name: user_friendly_name_accusative
+                  type: VARCHAR(255)
+              - column:
+                  name: user_friendly_name_plural
+                  type: VARCHAR(255)
+              - column:
+                  name: user_friendly_name_plural_genitive
+                  type: VARCHAR(255)
+              - column:
+                  name: entity_name_plural
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: primary_table
+                  type: VARCHAR(255)
+              - column:
+                  name: default_search_field
+                  type: VARCHAR(255)
+              - column:
+                  name: synonyms
+                  type: JSONB
+              - column:
+                  name: permission_read
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: permission_write
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addUniqueConstraint:
+            tableName: ontology_entity
+            columnNames: name
+            constraintName: uq_ontology_entity_name
+        - createTable:
+            tableName: ontology_field
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(128)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: user_friendly_name
+                  type: VARCHAR(255)
+              - column:
+                  name: db_table
+                  type: VARCHAR(255)
+              - column:
+                  name: db_column
+                  type: VARCHAR(255)
+              - column:
+                  name: is_primary_key
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: relation_name
+                  type: VARCHAR(255)
+              - column:
+                  name: ui_schema
+                  type: JSONB
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addUniqueConstraint:
+            tableName: ontology_field
+            columnNames: entity_id, name
+            constraintName: uq_ontology_field_entity_name
+        - addForeignKeyConstraint:
+            baseTableName: ontology_field
+            baseColumnNames: entity_id
+            constraintName: fk_ontology_field_entity
+            referencedTableName: ontology_entity
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - createTable:
+            tableName: ontology_field_permission
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: field_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: can_read
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: can_write
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addUniqueConstraint:
+            tableName: ontology_field_permission
+            columnNames: field_id
+            constraintName: uq_ontology_field_permission_field
+        - addForeignKeyConstraint:
+            baseTableName: ontology_field_permission
+            baseColumnNames: field_id
+            constraintName: fk_field_permission_field
+            referencedTableName: ontology_field
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - createTable:
+            tableName: ontology_field_synonym
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: field_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: VARCHAR(255)
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: ontology_field_synonym
+            baseColumnNames: field_id
+            constraintName: fk_field_synonym_field
+            referencedTableName: ontology_field
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - createTable:
+            tableName: ontology_relation
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(128)
+              - column:
+                  name: target_entity_id
+                  type: UUID
+              - column:
+                  name: target_entity_name
+                  type: VARCHAR(128)
+              - column:
+                  name: source_table
+                  type: VARCHAR(255)
+              - column:
+                  name: source_column
+                  type: VARCHAR(255)
+              - column:
+                  name: target_table
+                  type: VARCHAR(255)
+              - column:
+                  name: target_column
+                  type: VARCHAR(255)
+              - column:
+                  name: join_condition
+                  type: TEXT
+              - column:
+                  name: fetch_strategy
+                  type: VARCHAR(128)
+              - column:
+                  name: ui_schema
+                  type: JSONB
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addUniqueConstraint:
+            tableName: ontology_relation
+            columnNames: entity_id, name
+            constraintName: uq_ontology_relation_entity_name
+        - addForeignKeyConstraint:
+            baseTableName: ontology_relation
+            baseColumnNames: entity_id
+            constraintName: fk_ontology_relation_entity
+            referencedTableName: ontology_entity
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: ontology_relation
+            baseColumnNames: target_entity_id
+            constraintName: fk_ontology_relation_target
+            referencedTableName: ontology_entity
+            referencedColumnNames: id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - createTable:
+            tableName: ontology_relation_synonym
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: relation_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: VARCHAR(255)
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+                  defaultValue: 'system'
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: ontology_relation_synonym
+            baseColumnNames: relation_id
+            constraintName: fk_relation_synonym_relation
+            referencedTableName: ontology_relation
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
