@@ -1,6 +1,0 @@
-logging:
-  file:
-    name:
-  level:
-    root: INFO
-skip-gateway-routing: http://localhost:8081
