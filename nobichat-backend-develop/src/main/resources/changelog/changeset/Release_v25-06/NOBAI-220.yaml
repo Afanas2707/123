@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-current-ui-message-to-sessions
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: user_chat_sessions
+            columns:
+              - column:
+                  name: current_ui_message_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseColumnNames: current_ui_message_id
+            baseTableName: user_chat_sessions
+            constraintName: fk_session_current_ui_message
+            referencedColumnNames: id
+            referencedTableName: chat_messages
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            deferrable: true
+            initiallyDeferred: true

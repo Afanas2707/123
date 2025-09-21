@@ -1,0 +1,64 @@
+services:
+  nobichat-backend:
+    image: ${IMAGE_NAME}
+    environment:
+      NOBICHAT_DB_PASS: ${NOBICHAT_DB_PASS}
+      NOBICHAT_DB_URL: ${NOBICHAT_DB_URL}
+      NOBICHAT_DB_USER: ${NOBICHAT_DB_USER}
+      NOBICHAT_JWT_SECRET: ${NOBICHAT_JWT_SECRET}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_LLM_ID: ${OPENROUTER_LLM_ID}
+      KONTUR_FOCUS_API_KEY: ${KONTUR_FOCUS_API_KEY}
+      NOBICHAT_REDIS_HOST: ${NOBICHAT_REDIS_HOST}
+      NOBICHAT_REDIS_PORT: ${NOBICHAT_REDIS_PORT}
+      WIKI_NOBILIS_TEAM_URL: ${WIKI_NOBILIS_TEAM_URL}
+      WIKI_ONTOLOGY_PAGE_ID: ${WIKI_ONTOLOGY_PAGE_ID}
+      WIKI_TOKEN: ${WIKI_TOKEN}
+      OPENROUTER_API_BASE_URL: ${OPENROUTER_API_BASE_URL}
+      OPENROUTER_LLM_MAX_TOKENS: ${OPENROUTER_LLM_MAX_TOKENS}
+    ports:
+      - 8081:8081
+    networks:
+      - nobichat_network
+    volumes:
+      - nobichat_back_files:/opt/app/files
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          memory: 512M
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/v3/api-docs`) || PathPrefix(`/swagger-ui`) || PathPrefix(`/graphiql`) || PathPrefix(`/graphql`)"
+        - "traefik.http.services.backend.loadbalancer.server.port=8081"
+        - "traefik.http.routers.backend.entrypoints=nobichat"
+    healthcheck:
+      test: curl -sS --fail http://127.0.0.1:8081/actuator/health/liveness || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  nobichat_back_files:
+    external: true
+
+networks:
+  nobichat_network:
+    external: true

@@ -1,0 +1,2807 @@
+{
+  "entities": {
+    "customer": {
+      "meta": {
+        "synonyms": [
+          "клиент",
+          "покупатель",
+          "заказчик",
+          "организация-клиент"
+        ],
+        "description": "Управление клиентами организации",
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.suppliers",
+        "entityNamePlural": "customers",
+        "userFriendlyName": "Клиент",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": "Клиенты",
+        "userFriendlyNameAccusative": "Клиента",
+        "userFriendlyNamePluralGenitive": "клиентов"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": true
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [
+            "идентификатор клиента",
+            "айди клиента"
+          ],
+          "description": "Уникальный идентификатор клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Наименование клиента",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": true,
+              "component": "text",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": true,
+              "displaySequence": 1
+            },
+            "ListApplet": {
+              "name": "name",
+              "label": "Организация",
+              "component": {
+                "type": "composite",
+                "action": null,
+                "dataType": "composite",
+                "disabled": false,
+                "required": false,
+                "fieldName": null,
+                "components": [
+                  {
+                    "type": "text",
+                    "action": null,
+                    "dataType": "text",
+                    "disabled": false,
+                    "required": false,
+                    "fieldName": "name",
+                    "components": []
+                  }
+                ]
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": true
+          },
+          "name": "name",
+          "type": "string",
+          "synonyms": [
+            "название клиента",
+            "имя клиента",
+            "полное наименование клиента"
+          ],
+          "description": "Официальное наименование клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Наименование клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "description",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Описание клиента",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": false,
+              "component": "hint",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": true,
+              "displaySequence": 2
+            },
+            "ListApplet": {
+              "name": "description",
+              "label": "Описание",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "description",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "description",
+          "type": "text",
+          "synonyms": [
+            "заметки о клиенте",
+            "комментарий о клиенте",
+            "примечание о клиенте"
+          ],
+          "description": "Краткое описание деятельности клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Описание клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "supplier_code",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Код клиента",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": true,
+              "component": "text",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 2
+            },
+            "ListApplet": {
+              "name": "supplierCode",
+              "label": "Код",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "supplierCode",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 4
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierCode",
+          "type": "string",
+          "synonyms": [
+            "внутренний код клиента",
+            "артикул клиента"
+          ],
+          "description": "Внутренний код клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Код клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "director_name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Руководитель клиента",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": false,
+              "component": "text",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 4
+            },
+            "ListApplet": {
+              "name": "directorName",
+              "label": "Руководитель",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "directorName",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 5
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "directorName",
+          "type": "string",
+          "synonyms": [
+            "директор клиента",
+            "гендиректор клиента",
+            "ФИО руководителя клиента"
+          ],
+          "description": "ФИО руководителя организации-клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Руководитель клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "active",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Активный",
+              "action": {
+                "type": "edit",
+                "formId": null,
+                "method": null,
+                "params": null,
+                "modalId": null,
+                "variant": null,
+                "endpoint": null
+              },
+              "section": "Основная информация",
+              "dataType": "Boolean",
+              "disabled": false,
+              "required": false,
+              "component": "checkbox",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 3
+            },
+            "ListApplet": {
+              "name": "isActive",
+              "label": "",
+              "component": {
+                "type": "toggle",
+                "action": {
+                  "type": "api",
+                  "formId": null,
+                  "method": "PATCH",
+                  "params": null,
+                  "modalId": null,
+                  "variant": null,
+                  "endpoint": "/entities/customer/{id}"
+                },
+                "dataType": "Boolean",
+                "disabled": false,
+                "required": false,
+                "fieldName": "active",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "active",
+          "type": "boolean",
+          "synonyms": [
+            "клиент активен",
+            "клиент неактивен",
+            "статус клиента"
+          ],
+          "description": "Статус активности клиента (активен/неактивен).",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Статус активности клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "inn",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "ИНН",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": true,
+              "component": "text",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 5
+            },
+            "ListApplet": {
+              "name": "inn",
+              "label": "ИНН",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "inn",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 6
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "inn",
+          "type": "string",
+          "synonyms": [
+            "иэнэн",
+            "идентификационный номер налогоплательщика"
+          ],
+          "description": "ИНН - Индивидуальный номер налогоплательщика клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ИНН"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "contract_number",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Номер договора с клиентом",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": false,
+              "component": "text",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 6
+            },
+            "ListApplet": {
+              "name": "contractNumber",
+              "label": "Номер договора",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "contractNumber",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 7
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "contractNumber",
+          "type": "string",
+          "synonyms": [
+            "договор клиента",
+            "контракт клиента"
+          ],
+          "description": "Номер договора с клиентом.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Номер договора с клиентом"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "legal_address",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Юридический адрес",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 1
+            },
+            "ListApplet": {
+              "name": "legalAddress",
+              "label": "Юр. адрес",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "legalAddress",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 8
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "legalAddress",
+          "type": "text",
+          "synonyms": [
+            "юр адрес клиента",
+            "адрес регистрации клиента"
+          ],
+          "description": "Юридический адрес клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Юридический адрес"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "kpp",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "КПП",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 2
+            },
+            "ListApplet": {
+              "name": "kpp",
+              "label": "КПП",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "kpp",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 9
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "kpp",
+          "type": "string",
+          "synonyms": [
+            "кэпэпэ клиента",
+            "код причины постановки клиента"
+          ],
+          "description": "КПП - Код причины постановки клиента на учет.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "КПП"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "ogrn",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "ОГРН",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 5
+            },
+            "ListApplet": {
+              "name": "ogrn",
+              "label": "ОГРН",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "ogrn",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 10
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "ogrn",
+          "type": "string",
+          "synonyms": [
+            "огэрээн",
+            "основной государственный регистрационный номер клиента"
+          ],
+          "description": "ОГРН - Основной государственный регистрационный номер клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ОГРН"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "okpo",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "ОКПО",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 6
+            },
+            "ListApplet": {
+              "name": "okpo",
+              "label": "ОКПО",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "okpo",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 11
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "okpo",
+          "type": "string",
+          "synonyms": [
+            "окпо клиента"
+          ],
+          "description": "ОКПО - Общероссийский классификатор предприятий и организаций клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ОКПО"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "bank_name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Банк клиента",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 4
+            },
+            "ListApplet": {
+              "name": "bankName",
+              "label": "Банк",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "bankName",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 12
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "bankName",
+          "type": "string",
+          "synonyms": [
+            "название банка клиента",
+            "банковские реквизиты клиента"
+          ],
+          "description": "Название банка, в котором обслуживается клиент.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Банк клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "correspondent_account",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Корр. счет клиента",
+              "action": null,
+              "section": "Юридическая информация",
+              "dataType": null,
+              "disabled": true,
+              "required": true,
+              "component": "text",
+              "isControl": false,
+              "components": [],
+              "isCardHeader": false,
+              "displaySequence": 3
+            },
+            "ListApplet": {
+              "name": "correspondentAccount",
+              "label": "Корр. счет",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "correspondentAccount",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 13
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "correspondentAccount",
+          "type": "string",
+          "synonyms": [
+            "корреспондентский счет клиента",
+            "к/с клиента"
+          ],
+          "description": "Корреспондентский счет клиента.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Корр. счет клиента"
+        },
+        {
+          "db": {
+            "table": "public.suppliers",
+            "column": "created_date",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": {
+              "label": "Дата создания",
+              "action": null,
+              "section": "Основная информация",
+              "dataType": null,
+              "disabled": false,
+              "required": false,
+              "component": "date",
+              "isControl": true,
+              "components": [],
+              "isCardHeader": true,
+              "displaySequence": 999
+            },
+            "ListApplet": {
+              "name": "creationDate",
+              "label": "Дата создания",
+              "component": {
+                "type": "date",
+                "action": null,
+                "dataType": "date",
+                "disabled": false,
+                "required": false,
+                "fieldName": "creationDate",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": true,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "creationDate",
+          "type": "date",
+          "synonyms": [
+            "дата создания клиента",
+            "создано",
+            "время создания"
+          ],
+          "description": "Дата и время создания записи о клиенте.",
+          "permissions": {
+            "read": true,
+            "write": false
+          },
+          "userFriendlyName": "Дата создания"
+        }
+      ],
+      "relations": {
+        "files": {
+          "ui": {
+            "label": "Заметки и файлы клиента",
+            "tabId": null,
+            "displaySequence": 7,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "файлы клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_files",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerFile",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "events": {
+          "ui": {
+            "label": "История взаимодействия",
+            "tabId": null,
+            "displaySequence": 6,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "история клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_events",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerEvent",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "orders": {
+          "ui": {
+            "label": "Текущие заказы клиента",
+            "tabId": null,
+            "displaySequence": 5,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "заказы клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_orders",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerOrder",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "prices": {
+          "ui": {
+            "label": "Цены для клиента",
+            "tabId": null,
+            "displaySequence": 4,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "цены клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_prices",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerPrice",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "contacts": {
+          "ui": {
+            "label": "Контакты клиента",
+            "tabId": null,
+            "displaySequence": 2,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "контакты клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_contacts",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerContact",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "mainContact": {
+          "ui": null,
+          "type": "one-to-one",
+          "synonyms": [],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_contacts",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerContact",
+          "fetchStrategy": null,
+          "joinCondition": "targetAlias.is_primary = true"
+        },
+        "nomenclatures": {
+          "ui": {
+            "label": "Номенклатура клиента",
+            "tabId": null,
+            "displaySequence": 3,
+            "isDefaultInCard": true
+          },
+          "type": "one-to-many",
+          "synonyms": [
+            "номенклатура клиента"
+          ],
+          "sourceTable": "public.suppliers",
+          "targetTable": "public.supplier_nomenclature",
+          "sourceColumn": "id",
+          "targetColumn": "supplier_id",
+          "targetEntity": "customerNomenclature",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerFile": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_files",
+        "entityNamePlural": "customerFiles",
+        "userFriendlyName": "Файл клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "файлов клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_files",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID файла"
+        },
+        {
+          "db": {
+            "table": "public.supplier_files",
+            "column": "file_name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "fileName",
+              "label": "Имя файла",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "fileName",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "fileName",
+          "type": "string",
+          "synonyms": [
+            "название файла"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Имя файла"
+        },
+        {
+          "db": {
+            "table": "public.supplier_files",
+            "column": "description",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "description",
+              "label": "Описание",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "description",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "description",
+          "type": "text",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Описание файла"
+        },
+        {
+          "db": {
+            "table": "public.supplier_files",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится файл.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID клиента"
+        }
+      ],
+      "relations": {
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_files",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerEvent": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_events",
+        "entityNamePlural": "customerEvents",
+        "userFriendlyName": "Событие по клиенту",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "событий по клиенту"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID события"
+        },
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "event_type",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "eventType",
+              "label": "Тип",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "eventType",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "eventType",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Тип события"
+        },
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "title",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "title",
+              "label": "Заголовок",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "title",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "title",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Заголовок"
+        },
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "description",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "description",
+              "label": "Описание",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "description",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "description",
+          "type": "text",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Описание события"
+        },
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "event_date",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "eventDate",
+              "label": "Дата",
+              "component": {
+                "type": "date",
+                "action": null,
+                "dataType": "date",
+                "disabled": false,
+                "required": false,
+                "fieldName": "eventDate",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "eventDate",
+          "type": "timestamp",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Дата события"
+        },
+        {
+          "db": {
+            "table": "public.supplier_events",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится событие.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": null
+        }
+      ],
+      "relations": {
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_events",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerOrder": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_orders",
+        "entityNamePlural": "customerOrders",
+        "userFriendlyName": "Заказ клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "заказов клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID заказа"
+        },
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "order_number",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "orderNumber",
+              "label": "Номер заказа",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "orderNumber",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "orderNumber",
+          "type": "string",
+          "synonyms": [
+            "заказ номер"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Номер заказа"
+        },
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "status",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "status",
+              "label": "Статус",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "status",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "status",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Статус заказа"
+        },
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "total_amount",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "totalAmount",
+              "label": "Сумма",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "totalAmount",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "totalAmount",
+          "type": "decimal",
+          "synonyms": [
+            "сумма заказа",
+            "итого заказа"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Сумма заказа"
+        },
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "order_date",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "orderDate",
+              "label": "Дата заказа",
+              "component": {
+                "type": "date",
+                "action": null,
+                "dataType": "date",
+                "disabled": false,
+                "required": false,
+                "fieldName": "orderDate",
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "orderDate",
+          "type": "timestamp",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Дата заказа"
+        },
+        {
+          "db": {
+            "table": "public.supplier_orders",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится заказ.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": null
+        }
+      ],
+      "relations": {
+        "items": {
+          "ui": null,
+          "type": "one-to-many",
+          "synonyms": [
+            "позиции заказа",
+            "строки заказа"
+          ],
+          "sourceTable": "public.supplier_orders",
+          "targetTable": "public.supplier_order_items",
+          "sourceColumn": "id",
+          "targetColumn": "order_id",
+          "targetEntity": "customerOrderItem",
+          "fetchStrategy": null,
+          "joinCondition": null
+        },
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_orders",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerPrice": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_prices",
+        "entityNamePlural": "customerPrices",
+        "userFriendlyName": "Цена для клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "цен для клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID цены"
+        },
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "article_number",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "articleNumber",
+              "label": "Артикул",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "articleNumber",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "articleNumber",
+          "type": "string",
+          "synonyms": [
+            "код товара"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Артикул"
+        },
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "name",
+              "label": "Наименование",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "name",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "name",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Наименование товара"
+        },
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "unit",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "unit",
+              "label": "Ед. изм.",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "unit",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "unit",
+          "type": "string",
+          "synonyms": [
+            "ед изм"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Единица измерения"
+        },
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "price",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "price",
+              "label": "Цена",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "price",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "price",
+          "type": "decimal",
+          "synonyms": [
+            "стоимость"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Цена"
+        },
+        {
+          "db": {
+            "table": "public.supplier_prices",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится цена.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": null
+        }
+      ],
+      "relations": {
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_prices",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerContact": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_contacts",
+        "entityNamePlural": "customerContacts",
+        "userFriendlyName": "Контакт клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "контактов клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID контакта"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "full_name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "fullName",
+              "label": "ФИО",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "fullName",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "fullName",
+          "type": "string",
+          "synonyms": [
+            "полное имя"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ФИО"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "position",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "position",
+              "label": "Должность",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "position",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "position",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Должность"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "email",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "email",
+              "label": "E-mail",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "email",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "email",
+          "type": "string",
+          "synonyms": [
+            "электронная почта",
+            "почта"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Email"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "phone",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "phone",
+              "label": "Телефон",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "phone",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 5
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "phone",
+          "type": "string",
+          "synonyms": [
+            "номер телефона"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Телефон"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "notes",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "notes",
+              "label": "Заметки",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "notes",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 6
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "notes",
+          "type": "text",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Заметки"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "is_primary",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "isPrimary",
+              "label": "Основной",
+              "component": {
+                "type": "toggle",
+                "action": {
+                  "type": "edit",
+                  "formId": null,
+                  "method": null,
+                  "params": null,
+                  "modalId": null,
+                  "variant": null,
+                  "endpoint": null
+                },
+                "dataType": "Boolean",
+                "disabled": true,
+                "required": false,
+                "fieldName": null,
+                "components": []
+              },
+              "isSearchable": false,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "isPrimary",
+          "type": "boolean",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Основной контакт"
+        },
+        {
+          "db": {
+            "table": "public.supplier_contacts",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится контакт.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID клиента"
+        }
+      ],
+      "relations": {
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_contacts",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerOrderItem": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_order_items",
+        "entityNamePlural": "customerOrderItems",
+        "userFriendlyName": "Позиция заказа клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "позиций заказа клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID позиции"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "article_number",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "articleNumber",
+              "label": "Артикул",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "articleNumber",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "articleNumber",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Артикул"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "name",
+              "label": "Наименование",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "name",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "name",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Наименование"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "unit",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "unit",
+              "label": "Единица измерения",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "unit",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "unit",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Единица измерения"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "quantity",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "quantity",
+              "label": "Количество",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "decimal",
+                "disabled": false,
+                "required": false,
+                "fieldName": "quantity",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "quantity",
+          "type": "decimal",
+          "synonyms": [
+            "кол-во"
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Количество"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "price_per_unit",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "pricePerUnit",
+              "label": "Цена за единицу",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "decimal",
+                "disabled": false,
+                "required": false,
+                "fieldName": "pricePerUnit",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 5
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "pricePerUnit",
+          "type": "decimal",
+          "synonyms": [
+            "цена за ед."
+          ],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Цена за единицу"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "line_total",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "lineTotal",
+              "label": "Сумма по строке",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "decimal",
+                "disabled": false,
+                "required": false,
+                "fieldName": "lineTotal",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 6
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "lineTotal",
+          "type": "decimal",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Сумма по строке"
+        },
+        {
+          "db": {
+            "table": "public.supplier_order_items",
+            "column": "order_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "orderId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID заказа, к которому относится позиция.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": null
+        }
+      ],
+      "relations": {
+        "customerOrder": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_order_items",
+          "targetTable": "public.supplier_orders",
+          "sourceColumn": "order_id",
+          "targetColumn": "id",
+          "targetEntity": "customerOrder",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    },
+    "customerNomenclature": {
+      "meta": {
+        "synonyms": [],
+        "description": null,
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "primaryTable": "public.supplier_nomenclature",
+        "entityNamePlural": "customerNomenclatures",
+        "userFriendlyName": "Номенклатура клиента",
+        "defaultSearchField": null,
+        "userFriendlyNamePlural": null,
+        "userFriendlyNameAccusative": null,
+        "userFriendlyNamePluralGenitive": "номенклатур клиента"
+      },
+      "fields": [
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "id",
+            "isPrimaryKey": true,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "id",
+          "type": "uuid",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "ID номенклатуры"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "article_number",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "articleNumber",
+              "label": "Артикул",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "articleNumber",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 1
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "articleNumber",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Артикул"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "name",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "name",
+              "label": "Наименование",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "name",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 2
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "name",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Наименование"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "description",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "description",
+              "label": "Описание",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "description",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 3
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "description",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Описание"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "category",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "category",
+              "label": "Категория",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "category",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 4
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "category",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Категория"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "unit",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": {
+              "name": "unit",
+              "label": "Ед. изм.",
+              "component": {
+                "type": "text",
+                "action": null,
+                "dataType": "text",
+                "disabled": false,
+                "required": false,
+                "fieldName": "unit",
+                "components": []
+              },
+              "isSearchable": true,
+              "displaySequence": 5
+            },
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": true,
+            "isMandatoryInList": false
+          },
+          "name": "unit",
+          "type": "string",
+          "synonyms": [],
+          "description": null,
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": "Единица измерения"
+        },
+        {
+          "db": {
+            "table": "public.supplier_nomenclature",
+            "column": "supplier_id",
+            "isPrimaryKey": false,
+            "relationName": null
+          },
+          "ui": {
+            "formView": null,
+            "ListApplet": null,
+            "isQueryable": false,
+            "isDefaultInCard": true,
+            "isDefaultInList": false,
+            "isMandatoryInList": false
+          },
+          "name": "supplierId",
+          "type": "uuid",
+          "synonyms": [],
+          "description": "ID клиента, к которому относится номенклатура.",
+          "permissions": {
+            "read": true,
+            "write": true
+          },
+          "userFriendlyName": null
+        }
+      ],
+      "relations": {
+        "customer": {
+          "ui": null,
+          "type": "many-to-one",
+          "synonyms": [],
+          "sourceTable": "public.supplier_nomenclature",
+          "targetTable": "public.suppliers",
+          "sourceColumn": "supplier_id",
+          "targetColumn": "id",
+          "targetEntity": "customer",
+          "fetchStrategy": null,
+          "joinCondition": null
+        }
+      }
+    }
+  }
+}

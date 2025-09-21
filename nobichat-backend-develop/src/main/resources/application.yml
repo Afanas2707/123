@@ -1,0 +1,112 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+  tomcat:
+    max-swallow-size: 4000MB
+
+confluence:
+  api:
+    url: ${WIKI_NOBILIS_TEAM_URL}
+    ontology-page-id: ${WIKI_ONTOLOGY_PAGE_ID}
+    token: ${WIKI_TOKEN}
+
+feign:
+  client:
+    config:
+      confluenceClient:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+kontur-focus:
+  api-key: ${KONTUR_FOCUS_API_KEY}
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 150MB
+      max-request-size: 150MB
+  ai:
+    openai:
+      api-key: ${OPENROUTER_API_KEY}
+      base-url: ${OPENROUTER_API_BASE_URL}
+      chat:
+        options:
+          max-tokens: ${OPENROUTER_LLM_MAX_TOKENS}
+          model: ${OPENROUTER_LLM_ID}
+  application:
+    name: nobichat
+  datasource:
+    url: ${NOBICHAT_DB_URL}
+    username: ${NOBICHAT_DB_USER}
+    password: ${NOBICHAT_DB_PASS}
+    driverClassName: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 40
+      minimum-idle: 40
+      keepalive-time: 540000
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+  liquibase:
+    enabled: true
+    change-log: classpath:changelog/db.changelog-master.yaml
+  security:
+    jwt:
+      secret_key: ${NOBICHAT_JWT_SECRET}
+      access_token_expiration: 36000000 # 10 hours
+      refresh_token_expiration: 252000000 # 7 days
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'
+    time-zone: UTC
+  data:
+    redis:
+      host: ${NOBICHAT_REDIS_HOST}
+      port: ${NOBICHAT_REDIS_PORT}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs/nobichat
+
+logging:
+  file:
+    name: /opt/app/log/application.log
+  level:
+    root: INFO
+    org:
+      nobilis:
+        nobichat:
+          feign: INFO
+          filters:
+            RequestLoggingFilter: DEBUG
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 1000
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+resilience4j:
+  ratelimiter:
+    instances:
+      openRouterLimiter:
+        limitForPeriod: 18
+        limitRefreshPeriod: 1m
+        timeoutDuration: 1m
