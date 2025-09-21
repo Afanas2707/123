@@ -15,7 +15,17 @@ import org.nobilis.nobichat.dto.ontology.OntologyDto;
 import org.nobilis.nobichat.exception.ResourceNotFoundException;
 import org.nobilis.nobichat.feign.ConfluenceClient;
 import org.nobilis.nobichat.model.Ontology;
+import org.nobilis.nobichat.model.ontology.FieldDbMetadata;
+import org.nobilis.nobichat.model.ontology.OntologyEntity;
+import org.nobilis.nobichat.model.ontology.OntologyField;
+import org.nobilis.nobichat.model.ontology.OntologyFieldPermission;
+import org.nobilis.nobichat.model.ontology.OntologyFieldSynonym;
+import org.nobilis.nobichat.model.ontology.OntologyRelation;
+import org.nobilis.nobichat.model.ontology.OntologyRelationSynonym;
 import org.nobilis.nobichat.repository.OntologyStorageRepository;
+import org.nobilis.nobichat.repository.ontology.OntologyEntityRepository;
+import org.nobilis.nobichat.repository.ontology.OntologyFieldRepository;
+import org.nobilis.nobichat.repository.ontology.OntologyRelationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -25,10 +35,13 @@ import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,6 +51,9 @@ import java.util.stream.Collectors;
 public class OntologyService {
 
     private final OntologyStorageRepository ontologyRepository;
+    private final OntologyEntityRepository ontologyEntityRepository;
+    private final OntologyFieldRepository ontologyFieldRepository;
+    private final OntologyRelationRepository ontologyRelationRepository;
     private final ObjectMapper objectMapper;
     private final ConfluenceClient confluenceClient;
 
@@ -73,9 +89,256 @@ public class OntologyService {
     }
 
     private OntologyDto getOntologyFromDb() {
+        List<OntologyEntity> normalizedEntities = ontologyEntityRepository.findAllWithDetails();
+        if (!normalizedEntities.isEmpty()) {
+            return assembleOntologyDto(normalizedEntities);
+        }
         return ontologyRepository.findFirstByOrderByCreationDateDesc()
                 .map(Ontology::getSchema)
                 .orElseThrow(() -> new ResourceNotFoundException("Отсутствует онтология в БД."));
+    }
+
+    private OntologyDto assembleOntologyDto(List<OntologyEntity> entities) {
+        OntologyDto ontologyDto = new OntologyDto();
+        for (OntologyEntity entity : entities) {
+            OntologyDto.EntitySchema entitySchema = new OntologyDto.EntitySchema();
+            entitySchema.setMeta(mapMeta(entity));
+            entitySchema.setFields(mapFields(entity));
+            entitySchema.setRelations(mapRelations(entity));
+            ontologyDto.getEntities().put(entity.getName(), entitySchema);
+        }
+
+        return ontologyDto;
+    }
+
+    private OntologyDto.Meta mapMeta(OntologyEntity entity) {
+        OntologyDto.Meta meta = new OntologyDto.Meta();
+        meta.setUserFriendlyName(entity.getUserFriendlyName());
+        meta.setUserFriendlyNameAccusative(entity.getUserFriendlyNameAccusative());
+        meta.setUserFriendlyNamePlural(entity.getUserFriendlyNamePlural());
+        meta.setUserFriendlyNamePluralGenitive(entity.getUserFriendlyNamePluralGenitive());
+        meta.setEntityNamePlural(entity.getEntityNamePlural());
+        meta.setDescription(entity.getDescription());
+        meta.setPrimaryTable(entity.getPrimaryTable());
+        meta.setDefaultSearchField(entity.getDefaultSearchField());
+        meta.setSynonyms(Optional.ofNullable(entity.getSynonyms()).orElseGet(ArrayList::new));
+        meta.setPermissions(new OntologyDto.Permissions(entity.isPermissionRead(), entity.isPermissionWrite()));
+        return meta;
+    }
+
+    private List<OntologyDto.EntitySchema.FieldSchema> mapFields(OntologyEntity entity) {
+        if (entity.getFields() == null) {
+            return new ArrayList<>();
+        }
+        return entity.getFields().stream()
+                .map(this::mapField)
+                .collect(Collectors.toList());
+    }
+
+    private OntologyDto.EntitySchema.FieldSchema mapField(OntologyField field) {
+        OntologyDto.EntitySchema.FieldSchema schema = new OntologyDto.EntitySchema.FieldSchema();
+        schema.setName(field.getName());
+        schema.setType(field.getType());
+        schema.setDescription(field.getDescription());
+        schema.setUserFriendlyName(field.getUserFriendlyName());
+        schema.setUi(field.getUi());
+
+        FieldDbMetadata metadata = field.getDbMetadata();
+        if (metadata != null) {
+            OntologyDto.EntitySchema.FieldSchema.DbInfo dbInfo = new OntologyDto.EntitySchema.FieldSchema.DbInfo();
+            dbInfo.setTable(metadata.getTableName());
+            dbInfo.setColumn(metadata.getColumnName());
+            dbInfo.setIsPrimaryKey(metadata.isPrimaryKey());
+            dbInfo.setRelationName(metadata.getRelationName());
+            schema.setDb(dbInfo);
+        }
+
+        List<String> synonyms = field.getSynonyms() == null ? Collections.emptyList() : field.getSynonyms().stream()
+                .map(OntologyFieldSynonym::getValue)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        schema.setSynonyms(new ArrayList<>(synonyms));
+
+        OntologyFieldPermission permission = field.getPermission();
+        if (permission != null) {
+            schema.setPermissions(new OntologyDto.Permissions(permission.isCanRead(), permission.isCanWrite()));
+        }
+
+        return schema;
+    }
+
+    private Map<String, OntologyDto.EntitySchema.RelationSchema> mapRelations(OntologyEntity entity) {
+        Map<String, OntologyDto.EntitySchema.RelationSchema> relations = new LinkedHashMap<>();
+        if (entity.getRelations() == null) {
+            return relations;
+        }
+        for (OntologyRelation relation : entity.getRelations()) {
+            OntologyDto.EntitySchema.RelationSchema schema = new OntologyDto.EntitySchema.RelationSchema();
+            schema.setType(relation.getType());
+            String targetEntityName = Optional.ofNullable(relation.getTargetEntity())
+                    .map(OntologyEntity::getName)
+                    .orElse(relation.getTargetEntityName());
+            schema.setTargetEntity(targetEntityName);
+            schema.setSourceTable(relation.getSourceTable());
+            schema.setSourceColumn(relation.getSourceColumn());
+            schema.setTargetTable(relation.getTargetTable());
+            schema.setTargetColumn(relation.getTargetColumn());
+            schema.setJoinCondition(relation.getJoinCondition());
+            schema.setFetchStrategy(relation.getFetchStrategy());
+            schema.setUi(relation.getUi());
+
+            List<String> synonyms = relation.getSynonyms() == null ? Collections.emptyList() : relation.getSynonyms().stream()
+                    .map(OntologyRelationSynonym::getValue)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            schema.setSynonyms(new ArrayList<>(synonyms));
+
+            relations.put(relation.getName(), schema);
+        }
+        return relations;
+    }
+
+    private void persistOntology(OntologyDto ontologyDto) {
+        ontologyRelationRepository.deleteAll();
+        ontologyFieldRepository.deleteAll();
+        ontologyEntityRepository.deleteAll();
+
+        if (ontologyDto == null || ontologyDto.getEntities() == null || ontologyDto.getEntities().isEmpty()) {
+            return;
+        }
+
+        Map<String, OntologyEntity> entities = new LinkedHashMap<>();
+        ontologyDto.getEntities().forEach((entityName, schema) -> {
+            OntologyEntity entity = new OntologyEntity();
+            entity.setName(entityName);
+            applyMeta(entity, schema.getMeta());
+            entities.put(entityName, entity);
+        });
+
+        ontologyDto.getEntities().forEach((entityName, schema) -> {
+            OntologyEntity entity = entities.get(entityName);
+            populateFields(entity, schema.getFields());
+            populateRelations(entity, schema.getRelations(), entities);
+        });
+
+        ontologyEntityRepository.saveAll(entities.values());
+    }
+
+    private void applyMeta(OntologyEntity entity, OntologyDto.Meta meta) {
+        if (meta == null) {
+            entity.setSynonyms(new ArrayList<>());
+            entity.setPermissionRead(false);
+            entity.setPermissionWrite(false);
+            return;
+        }
+
+        entity.setUserFriendlyName(meta.getUserFriendlyName());
+        entity.setUserFriendlyNameAccusative(meta.getUserFriendlyNameAccusative());
+        entity.setUserFriendlyNamePlural(meta.getUserFriendlyNamePlural());
+        entity.setUserFriendlyNamePluralGenitive(meta.getUserFriendlyNamePluralGenitive());
+        entity.setEntityNamePlural(meta.getEntityNamePlural());
+        entity.setDescription(meta.getDescription());
+        entity.setPrimaryTable(meta.getPrimaryTable());
+        entity.setDefaultSearchField(meta.getDefaultSearchField());
+        entity.setSynonyms(new ArrayList<>(Optional.ofNullable(meta.getSynonyms()).orElse(Collections.emptyList())));
+
+        OntologyDto.Permissions permissions = meta.getPermissions();
+        entity.setPermissionRead(permissions != null && permissions.isRead());
+        entity.setPermissionWrite(permissions != null && permissions.isWrite());
+    }
+
+    private void populateFields(OntologyEntity entity, List<OntologyDto.EntitySchema.FieldSchema> fields) {
+        entity.getFields().clear();
+        if (fields == null) {
+            return;
+        }
+        for (OntologyDto.EntitySchema.FieldSchema fieldSchema : fields) {
+            OntologyField field = new OntologyField();
+            field.setEntity(entity);
+            field.setName(fieldSchema.getName());
+            field.setType(fieldSchema.getType());
+            field.setDescription(fieldSchema.getDescription());
+            field.setUserFriendlyName(fieldSchema.getUserFriendlyName());
+            field.setUi(fieldSchema.getUi());
+
+            FieldDbMetadata metadata = field.getDbMetadata();
+            if (metadata == null) {
+                metadata = new FieldDbMetadata();
+                field.setDbMetadata(metadata);
+            }
+
+            OntologyDto.EntitySchema.FieldSchema.DbInfo dbInfo = fieldSchema.getDb();
+            if (dbInfo != null) {
+                metadata.setTableName(dbInfo.getTable());
+                metadata.setColumnName(dbInfo.getColumn());
+                metadata.setPrimaryKey(Boolean.TRUE.equals(dbInfo.getIsPrimaryKey()));
+                metadata.setRelationName(dbInfo.getRelationName());
+            } else {
+                metadata.setTableName(null);
+                metadata.setColumnName(null);
+                metadata.setPrimaryKey(false);
+                metadata.setRelationName(null);
+            }
+
+            List<String> synonyms = Optional.ofNullable(fieldSchema.getSynonyms()).orElse(Collections.emptyList());
+            for (String synonymValue : synonyms) {
+                if (synonymValue == null) {
+                    continue;
+                }
+                OntologyFieldSynonym synonym = new OntologyFieldSynonym();
+                synonym.setField(field);
+                synonym.setValue(synonymValue);
+                field.getSynonyms().add(synonym);
+            }
+
+            OntologyDto.Permissions permissions = fieldSchema.getPermissions();
+            if (permissions != null) {
+                OntologyFieldPermission permission = new OntologyFieldPermission();
+                permission.setField(field);
+                permission.setCanRead(permissions.isRead());
+                permission.setCanWrite(permissions.isWrite());
+                field.setPermission(permission);
+            }
+
+            entity.getFields().add(field);
+        }
+    }
+
+    private void populateRelations(OntologyEntity entity,
+                                   Map<String, OntologyDto.EntitySchema.RelationSchema> relations,
+                                   Map<String, OntologyEntity> entities) {
+        entity.getRelations().clear();
+        if (relations == null || relations.isEmpty()) {
+            return;
+        }
+        relations.forEach((relationName, relationSchema) -> {
+            OntologyRelation relation = new OntologyRelation();
+            relation.setSourceEntity(entity);
+            relation.setName(relationName);
+            relation.setType(relationSchema.getType());
+            relation.setTargetEntityName(relationSchema.getTargetEntity());
+            relation.setTargetEntity(entities.get(relationSchema.getTargetEntity()));
+            relation.setSourceTable(relationSchema.getSourceTable());
+            relation.setSourceColumn(relationSchema.getSourceColumn());
+            relation.setTargetTable(relationSchema.getTargetTable());
+            relation.setTargetColumn(relationSchema.getTargetColumn());
+            relation.setJoinCondition(relationSchema.getJoinCondition());
+            relation.setFetchStrategy(relationSchema.getFetchStrategy());
+            relation.setUi(relationSchema.getUi());
+
+            List<String> synonyms = Optional.ofNullable(relationSchema.getSynonyms()).orElse(Collections.emptyList());
+            for (String synonymValue : synonyms) {
+                if (synonymValue == null) {
+                    continue;
+                }
+                OntologyRelationSynonym synonym = new OntologyRelationSynonym();
+                synonym.setRelation(relation);
+                synonym.setValue(synonymValue);
+                relation.getSynonyms().add(synonym);
+            }
+
+            entity.getRelations().add(relation);
+        });
     }
 
     public OntologyDto.EntitySchema getEntitySchema(String entityName) {
@@ -105,10 +368,14 @@ public class OntologyService {
 
     @Transactional
     public OntologyDto updateOntology(OntologyDto newOntologyDtoSchema) {
+        persistOntology(newOntologyDtoSchema);
+
         Ontology storage = ontologyRepository.findFirstByOrderByCreationDateDesc()
-                .orElseThrow(() -> new ResourceNotFoundException("Отсутствует онтология в БД."));
+                .orElseGet(Ontology::new);
         storage.setSchema(newOntologyDtoSchema);
-        return ontologyRepository.save(storage).getSchema();
+        ontologyRepository.save(storage);
+
+        return getOntologyFromDb();
     }
 
     public EntityMetaData getEntityMetaData(String entityName) {
