@@ -23,3 +23,5 @@ databaseChangeLog:
       file: changelog/changeset/Release_v25-06/NOBAI-210.yaml
   - include:
       file: changelog/changeset/Release_v25-06/NOBAI-220.yaml
+  - include:
+      file: changelog/changeset/Release_v25-06/NOBAI-300.create-ontology-relational.yaml
