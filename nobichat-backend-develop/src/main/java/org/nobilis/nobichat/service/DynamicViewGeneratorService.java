@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class DynamicViewGeneratorService {
     private final OntologyService ontologyService;
     private final ObjectMapper objectMapper;
     private final LlmPromptService llmPromptService; // Новая зависимость вместо прямой LLMService и ApplicationEventPublisher
+    private final UiComponentService uiComponentService;
 
     private static final int MAX_ATTEMPTS = 3;
     private static final String LIST_VIEW_SKELETON_PATH = "list-view-skeleton.json";
@@ -94,7 +96,7 @@ public class DynamicViewGeneratorService {
             OntologyDto.EntitySchema entitySchema = ontologyService.getEntitySchema(entityName);
 
             List<OntologyDto.EntitySchema.FieldSchema> allFormFields = entitySchema.getFields().stream()
-                    .filter(field -> field.getUi() != null && field.getUi().isDefaultInCard())
+                    .filter(OntologyDto.EntitySchema.FieldSchema::isDefaultInCard)
                     .collect(Collectors.toList());
             log.info("Найдено {} полей с флагом isDefaultInCard.", allFormFields.size());
 
@@ -143,59 +145,62 @@ public class DynamicViewGeneratorService {
     private ArrayNode buildCardLayout(List<OntologyDto.EntitySchema.FieldSchema> allFormFields) {
         ArrayNode cardLayout = objectMapper.createArrayNode();
         allFormFields.stream()
-                .filter(field -> field.getUi().getFormView() != null && field.getUi().getFormView().isCardHeader())
-                .sorted(Comparator.comparingInt(f -> f.getUi().getFormView().getDisplaySequence()))
-                .forEach(field -> cardLayout.add(buildControlItemForForm(field)));
+                .map(this::toFormFieldView)
+                .flatMap(Optional::stream)
+                .filter(view -> view.config().path("isCardHeader").asBoolean(false))
+                .sorted(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)))
+                .forEach(view -> cardLayout.add(buildControlItemForForm(view)));
         return cardLayout;
     }
 
     private ArrayNode buildControlsLayout(List<OntologyDto.EntitySchema.FieldSchema> allFormFields) {
         ArrayNode controlsLayout = objectMapper.createArrayNode();
         allFormFields.stream()
-                .filter(field -> field.getUi().getFormView() != null &&
-                        field.getUi().getFormView().isControl() &&
-                        "Основная информация".equalsIgnoreCase(field.getUi().getFormView().getSection()))
-                .sorted(Comparator.comparingInt(f -> f.getUi().getFormView().getDisplaySequence()))
-                .forEach(field -> controlsLayout.add(buildControlItemForForm(field)));
+                .map(this::toFormFieldView)
+                .flatMap(Optional::stream)
+                .filter(view -> view.config().path("isControl").asBoolean(false)
+                        && "Основная информация".equalsIgnoreCase(view.config().path("section").asText("")))
+                .sorted(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)))
+                .forEach(view -> controlsLayout.add(buildControlItemForForm(view)));
         return controlsLayout;
     }
 
     private ArrayNode buildDetailViewsLayout(String rootEntityName, OntologyDto.EntitySchema entitySchema, List<OntologyDto.EntitySchema.FieldSchema> allFormFields) {
         List<JsonNode> detailViews = new ArrayList<>();
 
-        Map<String, List<OntologyDto.EntitySchema.FieldSchema>> fieldsBySection = allFormFields.stream()
-                .filter(field -> field.getUi().getFormView() != null &&
-                        field.getUi().getFormView().getSection() != null &&
-                        !field.getUi().getFormView().getSection().equalsIgnoreCase("Основная информация") &&
-                        !field.getUi().getFormView().getSection().equalsIgnoreCase("Card Header"))
-                .collect(Collectors.groupingBy(f -> f.getUi().getFormView().getSection()));
+        Map<String, List<FormFieldView>> fieldsBySection = allFormFields.stream()
+                .map(this::toFormFieldView)
+                .flatMap(Optional::stream)
+                .filter(view -> {
+                    String section = view.config().path("section").asText(null);
+                    return section != null
+                            && !section.equalsIgnoreCase("Основная информация")
+                            && !section.equalsIgnoreCase("Card Header");
+                })
+                .collect(Collectors.groupingBy(view -> view.config().path("section").asText()));
 
-        fieldsBySection.forEach((sectionName, fields) -> {
-            detailViews.add(buildFormAppletDetailView(sectionName, rootEntityName, fields));
+        fieldsBySection.forEach((sectionName, views) -> {
+            views.sort(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)));
+            detailViews.add(buildFormAppletDetailView(sectionName, rootEntityName, views));
         });
 
         if (entitySchema.getRelations() != null) {
             entitySchema.getRelations().values().stream()
-                    .filter(rel -> rel.getUi() != null && rel.getUi().isDefaultInCard())
-                    .forEach(relation -> {
-                        detailViews.add(buildListAppletDetailView(relation, rootEntityName));
-                    });
+                    .filter(OntologyDto.EntitySchema.RelationSchema::isDefaultInCard)
+                    .forEach(relation -> detailViews.add(buildListAppletDetailView(relation, rootEntityName)));
         }
 
-        detailViews.sort(Comparator.comparingInt(node -> node.get("displaySequence").asInt()));
+        detailViews.sort(Comparator.comparingInt(node -> node.path("displaySequence").asInt(Integer.MAX_VALUE)));
 
         return objectMapper.valueToTree(detailViews);
     }
 
-    private ObjectNode buildFormAppletDetailView(String sectionName, String rootEntityNameSingular, List<OntologyDto.EntitySchema.FieldSchema> fields) {
+    private ObjectNode buildFormAppletDetailView(String sectionName, String rootEntityNameSingular, List<FormFieldView> fields) {
         ObjectNode detailView = objectMapper.createObjectNode();
         detailView.put("label", sectionName);
 
-        fields.stream().findFirst().ifPresent(f -> {
-            if (f.getUi().getFormView() != null) {
-                detailView.put("displaySequence", f.getUi().getFormView().getDisplaySequence());
-            }
-        });
+        fields.stream().findFirst()
+                .ifPresent(view -> detailView.put("displaySequence", view.config().path("displaySequence").asInt(0)));
 
         ObjectNode applet = objectMapper.createObjectNode();
         applet.put("type", "FormApplet");
@@ -207,17 +212,16 @@ public class DynamicViewGeneratorService {
         source.put("endpoint", "/entities/{view.entity}/{view.sourceId}");
 
         ArrayNode fieldsForSource = objectMapper.createArrayNode();
-        fields.forEach(f -> fieldsForSource.add(f.getName()));
+        fields.forEach(f -> fieldsForSource.add(f.field().getName()));
         ObjectNode body = objectMapper.createObjectNode();
         body.set("fields", fieldsForSource);
         source.set("body", body);
         applet.set("source", source);
 
-
         ArrayNode controls = objectMapper.createArrayNode();
         fields.stream()
-                .sorted(Comparator.comparingInt(f -> f.getUi().getFormView().getDisplaySequence()))
-                .forEach(field -> controls.add(buildControlItemForForm(field)));
+                .sorted(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)))
+                .forEach(view -> controls.add(buildControlItemForForm(view)));
         applet.set("controls", controls);
 
         detailView.set("applet", applet);
@@ -226,12 +230,20 @@ public class DynamicViewGeneratorService {
 
     private ObjectNode buildListAppletDetailView(OntologyDto.EntitySchema.RelationSchema relation, String rootEntityNameSingular) {
         ObjectNode detailView = objectMapper.createObjectNode();
-        detailView.put("label", relation.getUi().getLabel());
-        detailView.put("displaySequence", relation.getUi().getDisplaySequence());
 
         ObjectNode applet = objectMapper.createObjectNode();
-        applet.put("type", "ListApplet");
-        applet.put("title", relation.getUi().getLabel());
+        uiComponentService.getConfig(relation.getComponentId())
+                .filter(JsonNode::isObject)
+                .map(JsonNode::deepCopy)
+                .map(ObjectNode.class::cast)
+                .ifPresent(applet::setAll);
+
+        String label = relation.getLabel() != null ? relation.getLabel() : applet.path("title").asText(relation.getTargetEntity());
+        detailView.put("label", label);
+        detailView.put("displaySequence", relation.getDisplaySequence());
+
+        applet.put("type", applet.path("type").asText("ListApplet"));
+        applet.put("title", applet.path("title").asText(label));
         applet.put("entity", relation.getTargetEntity());
 
         applet.set("source", buildListAppletSource(rootEntityNameSingular, relation.getTargetEntity()));
@@ -279,7 +291,7 @@ public class DynamicViewGeneratorService {
         OntologyDto.EntitySchema targetSchema = ontologyService.getEntitySchema(targetEntityName);
         ArrayNode searchFields = objectMapper.createArrayNode();
         targetSchema.getFields().stream()
-                .filter(f -> f.getUi() != null && f.getUi().getListApplet() != null && f.getUi().getListApplet().isSearchable())
+                .filter(this::isFieldSearchableInList)
                 .map(OntologyDto.EntitySchema.FieldSchema::getName)
                 .forEach(searchFields::add);
         search.set("searchFields", searchFields);
@@ -294,47 +306,10 @@ public class DynamicViewGeneratorService {
         if (targetSchema.getFields() == null) return columns;
 
         targetSchema.getFields().stream()
-                .filter(f -> f.getUi() != null && f.getUi().getListApplet() != null)
-                .sorted(Comparator.comparingInt(f -> f.getUi().getListApplet().getDisplaySequence()))
-                .forEach(field -> {
-                    ObjectNode columnNode = objectMapper.createObjectNode();
-                    OntologyDto.ListApplet listApplet = field.getUi().getListApplet();
-                    OntologyDto.ComponentSchema componentSchema = listApplet.getComponent();
-
-                    columnNode.put("name", listApplet.getName());
-                    columnNode.put("label", listApplet.getLabel());
-                    columnNode.put("displaySequence", listApplet.getDisplaySequence());
-                    columnNode.put("isSearchable", listApplet.isSearchable());
-
-                    if (componentSchema != null) {
-                        ObjectNode componentNode = objectMapper.createObjectNode();
-                        componentNode.put("type", componentSchema.getType());
-                        if (componentSchema.getDataType() != null) {
-                            componentNode.put("dataType", componentSchema.getDataType());
-                        }
-                        if (componentSchema.getFieldName() != null) {
-                            componentNode.put("fieldName", componentSchema.getFieldName());
-                        } else {
-                            componentNode.put("fieldName", listApplet.getName());
-                        }
-
-                        if (componentSchema.getAction() != null) {
-                            componentNode.set("action", objectMapper.valueToTree(componentSchema.getAction()));
-                        }
-                        if (componentSchema.getComponents() != null && !componentSchema.getComponents().isEmpty()) {
-                            componentNode.set("components", objectMapper.valueToTree(componentSchema.getComponents()));
-                        }
-                        if (componentSchema.isRequired()) {
-                            componentNode.put("required", true);
-                        }
-                        if (componentSchema.isDisabled()) {
-                            componentNode.put("disabled", true);
-                        }
-
-                        columnNode.set("component", componentNode);
-                    }
-                    columns.add(columnNode);
-                });
+                .map(this::toListFieldView)
+                .flatMap(Optional::stream)
+                .sorted(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)))
+                .forEach(view -> columns.add(buildListColumnNode(view)));
         return columns;
     }
 
@@ -359,34 +334,42 @@ public class DynamicViewGeneratorService {
         return actions;
     }
 
-    private ObjectNode buildControlItemForForm(OntologyDto.EntitySchema.FieldSchema field) {
+    private ObjectNode buildControlItemForForm(FormFieldView view) {
         ObjectNode item = objectMapper.createObjectNode();
-        OntologyDto.FormView formView = field.getUi().getFormView();
+        OntologyDto.EntitySchema.FieldSchema field = view.field();
+        JsonNode formView = view.config();
 
         item.put("name", field.getName());
-        item.put("label", formView.getLabel());
-        item.set("component", buildComponentNodeForForm(field, formView));
-        item.put("displaySequence", formView.getDisplaySequence());
+        String label = formView.path("label").asText(field.getUserFriendlyName() != null
+                ? field.getUserFriendlyName()
+                : field.getName());
+        item.put("label", label);
+        item.set("component", buildComponentNodeForForm(view));
+        item.put("displaySequence", formView.path("displaySequence").asInt(0));
 
         return item;
     }
 
-    private ObjectNode buildComponentNodeForForm(OntologyDto.EntitySchema.FieldSchema field, OntologyDto.FormView formView) {
+    private ObjectNode buildComponentNodeForForm(FormFieldView view) {
         ObjectNode component = objectMapper.createObjectNode();
-        component.put("type", formView.getComponent());
-        component.put("dataType", formView.getDataType() != null ? formView.getDataType() : field.getType());
+        OntologyDto.EntitySchema.FieldSchema field = view.field();
+        JsonNode formView = view.config();
+
+        component.put("type", formView.path("component").asText());
+        String dataType = formView.path("dataType").asText(null);
+        component.put("dataType", dataType != null ? dataType : field.getType());
         component.put("fieldName", field.getName());
-        if (formView.isRequired()) {
+        if (formView.path("required").asBoolean(false)) {
             component.put("required", true);
         }
-        if (formView.isDisabled()) {
+        if (formView.path("disabled").asBoolean(false)) {
             component.put("disabled", true);
         }
-        if (formView.getAction() != null) {
-            component.set("action", objectMapper.valueToTree(formView.getAction()));
+        if (formView.has("action") && !formView.get("action").isNull()) {
+            component.set("action", formView.get("action"));
         }
-        if (formView.getComponents() != null && !formView.getComponents().isEmpty()) {
-            component.set("components", objectMapper.valueToTree(formView.getComponents()));
+        if (formView.has("components") && formView.get("components").isArray() && formView.get("components").size() > 0) {
+            component.set("components", formView.get("components"));
         }
         return component;
     }
@@ -412,7 +395,7 @@ public class DynamicViewGeneratorService {
                         .collect(Collectors.toMap(OntologyDto.EntitySchema.FieldSchema::getName, Function.identity()));
 
                 List<String> selectedFieldNames = allFields.stream()
-                        .filter(field -> field.getUi() != null && field.getUi().isDefaultInList())
+                        .filter(OntologyDto.EntitySchema.FieldSchema::isDefaultInList)
                         .map(OntologyDto.EntitySchema.FieldSchema::getName)
                         .collect(Collectors.toList());
 
@@ -447,22 +430,13 @@ public class DynamicViewGeneratorService {
     }
 
     private List<JsonNode> generateAndSortColumns(List<String> selectedFieldNames, Map<String, OntologyDto.EntitySchema.FieldSchema> fieldsMap) {
-        List<OntologyDto.ListApplet> listApplets = selectedFieldNames.stream()
+        return selectedFieldNames.stream()
                 .map(fieldsMap::get)
                 .filter(Objects::nonNull)
-                .map(field -> {
-                    if (field.getUi() != null && field.getUi().getListApplet() != null) {
-                        return field.getUi().getListApplet();
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        listApplets.sort(Comparator.comparingInt(OntologyDto.ListApplet::getDisplaySequence));
-
-        return listApplets.stream()
-                .map(applet -> (JsonNode) objectMapper.valueToTree(applet))
+                .map(this::toListFieldView)
+                .flatMap(Optional::stream)
+                .sorted(Comparator.comparingInt(view -> view.config().path("displaySequence").asInt(Integer.MAX_VALUE)))
+                .map(view -> (JsonNode) buildListColumnNode(view))
                 .collect(Collectors.toList());
     }
 
@@ -470,9 +444,7 @@ public class DynamicViewGeneratorService {
         return selectedFieldNames.stream()
                 .map(fieldsMap::get)
                 .filter(Objects::nonNull)
-                .filter(field -> field.getUi() != null &&
-                        field.getUi().getListApplet() != null &&
-                        field.getUi().getListApplet().isSearchable())
+                .filter(this::isFieldSearchableInList)
                 .map(OntologyDto.EntitySchema.FieldSchema::getName)
                 .collect(Collectors.toList());
     }
@@ -573,6 +545,55 @@ public class DynamicViewGeneratorService {
         }
 
         return rootNode;
+    }
+
+    private Optional<FormFieldView> toFormFieldView(OntologyDto.EntitySchema.FieldSchema field) {
+        return uiComponentService.getConfig(field.getFormComponentId())
+                .map(config -> new FormFieldView(field, config));
+    }
+
+    private Optional<ListFieldView> toListFieldView(OntologyDto.EntitySchema.FieldSchema field) {
+        return uiComponentService.getConfig(field.getListComponentId())
+                .map(config -> new ListFieldView(field, config));
+    }
+
+    private boolean isFieldSearchableInList(OntologyDto.EntitySchema.FieldSchema field) {
+        return uiComponentService.getConfig(field.getListComponentId())
+                .map(config -> config.path("isSearchable").asBoolean(false))
+                .orElse(false);
+    }
+
+    private ObjectNode buildListColumnNode(ListFieldView view) {
+        ObjectNode columnNode = objectMapper.createObjectNode();
+        JsonNode config = view.config();
+        String name = config.path("name").asText(view.field().getName());
+        columnNode.put("name", name);
+        String label = config.path("label").asText(view.field().getUserFriendlyName() != null
+                ? view.field().getUserFriendlyName()
+                : name);
+        columnNode.put("label", label);
+        columnNode.put("displaySequence", config.path("displaySequence").asInt(0));
+        columnNode.put("isSearchable", config.path("isSearchable").asBoolean(false));
+
+        JsonNode componentNode = config.path("component");
+        if (componentNode.isObject()) {
+            ObjectNode component = objectMapper.createObjectNode();
+            component.setAll((ObjectNode) componentNode);
+            if (!component.has("fieldName") || component.get("fieldName").isNull()) {
+                component.put("fieldName", view.field().getName());
+            }
+            if (!component.has("dataType") || component.get("dataType").isNull()) {
+                component.put("dataType", view.field().getType());
+            }
+            columnNode.set("component", component);
+        }
+        return columnNode;
+    }
+
+    private record FormFieldView(OntologyDto.EntitySchema.FieldSchema field, JsonNode config) {
+    }
+
+    private record ListFieldView(OntologyDto.EntitySchema.FieldSchema field, JsonNode config) {
     }
 
     private String loadResourceFileAsString(String path) {

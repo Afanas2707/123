@@ -1,6 +1,5 @@
 package org.nobilis.nobichat.model.ontology;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,9 +15,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.nobilis.nobichat.model.BusinessEntity;
+import org.nobilis.nobichat.model.ui.UiComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +57,25 @@ public class OntologyFieldDefinition extends BusinessEntity {
     @JoinColumn(name = "db_binding_id")
     private OntologyDbBinding dbBinding;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "ui_schema", columnDefinition = "jsonb")
-    private JsonNode uiSchema;
+    @Column(name = "is_queryable", nullable = false)
+    private boolean queryable;
+
+    @Column(name = "is_default_in_list", nullable = false)
+    private boolean defaultInList;
+
+    @Column(name = "is_mandatory_in_list", nullable = false)
+    private boolean mandatoryInList;
+
+    @Column(name = "is_default_in_card", nullable = false)
+    private boolean defaultInCard;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "list_component_id")
+    private UiComponent listComponent;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "form_component_id")
+    private UiComponent formComponent;
 
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OntologyFieldSynonym> synonyms = new ArrayList<>();

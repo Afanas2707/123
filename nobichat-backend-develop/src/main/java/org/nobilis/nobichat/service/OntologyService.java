@@ -1,7 +1,6 @@
 package org.nobilis.nobichat.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -142,7 +141,16 @@ public class OntologyService {
                 .collect(Collectors.toList()));
         fieldSchema.setPermissions(mapPermissions(fieldDefinition.getPermissions()));
         fieldSchema.setDb(mapDb(fieldDefinition.getDbBinding()));
-        fieldSchema.setUi(convertFromJson(fieldDefinition.getUiSchema(), OntologyDto.UiSchema.class));
+        fieldSchema.setQueryable(fieldDefinition.isQueryable());
+        fieldSchema.setDefaultInList(fieldDefinition.isDefaultInList());
+        fieldSchema.setMandatoryInList(fieldDefinition.isMandatoryInList());
+        fieldSchema.setDefaultInCard(fieldDefinition.isDefaultInCard());
+        if (fieldDefinition.getListComponent() != null) {
+            fieldSchema.setListComponentId(fieldDefinition.getListComponent().getId());
+        }
+        if (fieldDefinition.getFormComponent() != null) {
+            fieldSchema.setFormComponentId(fieldDefinition.getFormComponent().getId());
+        }
         return fieldSchema;
     }
 
@@ -159,7 +167,15 @@ public class OntologyService {
         relationSchema.setSynonyms(relationDefinition.getSynonyms().stream()
                 .map(OntologyRelationSynonym::getValue)
                 .collect(Collectors.toList()));
-        relationSchema.setUi(convertFromJson(relationDefinition.getUiSchema(), OntologyDto.UiRelationSchema.class));
+        relationSchema.setLabel(relationDefinition.getLabel());
+        relationSchema.setTabId(relationDefinition.getTabId());
+        relationSchema.setDefaultInCard(relationDefinition.isDefaultInCard());
+        relationSchema.setDisplaySequence(relationDefinition.getDisplaySequence() != null
+                ? relationDefinition.getDisplaySequence()
+                : 0);
+        if (relationDefinition.getComponent() != null) {
+            relationSchema.setComponentId(relationDefinition.getComponent().getId());
+        }
         return relationSchema;
     }
 
@@ -180,17 +196,6 @@ public class OntologyService {
         dbInfo.setIsPrimaryKey(dbBinding.getPrimaryKey());
         dbInfo.setRelationName(dbBinding.getRelationName());
         return dbInfo;
-    }
-
-    private <T> T convertFromJson(JsonNode node, Class<T> type) {
-        if (node == null || node.isNull()) {
-            return null;
-        }
-        try {
-            return objectMapper.treeToValue(node, type);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Не удалось преобразовать сохранённую JSON-схему UI в тип " + type.getSimpleName(), e);
-        }
     }
 
     public OntologyDto.EntitySchema getEntitySchema(String entityName) {
@@ -256,7 +261,7 @@ public class OntologyService {
         return ontologyDto.getEntities().values().stream()
                 .flatMap(entitySchema -> Optional.ofNullable(entitySchema.getFields())
                         .orElse(Collections.emptyList()).stream())
-                .filter(field -> field.getUi() != null && field.getUi().isQueryable())
+                .filter(OntologyDto.EntitySchema.FieldSchema::isQueryable)
                 .collect(Collectors.toList());
     }
 

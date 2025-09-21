@@ -1,0 +1,557 @@
+databaseChangeLog:
+  - changeSet:
+      id: NOBAI-400-create-ui-and-scenario-tables
+      author: ChatGPT
+      changes:
+        - createTable:
+            tableName: ui_component
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: component_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: label
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: parent_component_id
+                  type: uuid
+              - column:
+                  name: display_order
+                  type: INTEGER
+              - column:
+                  name: config
+                  type: JSONB
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: ui_component
+            baseColumnNames: parent_component_id
+            constraintName: fk_ui_component_parent
+            referencedTableName: ui_component
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - createTable:
+            tableName: scenario
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: VARCHAR(100)
+                  constraints:
+                    unique: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: entity_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: scenario
+            baseColumnNames: entity_id
+            constraintName: fk_scenario_entity
+            referencedTableName: ontology_entity
+            referencedColumnNames: id
+        - createTable:
+            tableName: scenario_template
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: scenario_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: template_type
+                  type: VARCHAR(100)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: root_component_id
+                  type: uuid
+              - column:
+                  name: is_default
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_template
+            baseColumnNames: scenario_id
+            constraintName: fk_template_scenario
+            referencedTableName: scenario
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_template
+            baseColumnNames: root_component_id
+            constraintName: fk_template_root_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+        - createTable:
+            tableName: scenario_step
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: scenario_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: template_id
+                  type: uuid
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: label
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: display_order
+                  type: INTEGER
+              - column:
+                  name: entry_component_id
+                  type: uuid
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_step
+            baseColumnNames: scenario_id
+            constraintName: fk_step_scenario
+            referencedTableName: scenario
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_step
+            baseColumnNames: template_id
+            constraintName: fk_step_template
+            referencedTableName: scenario_template
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: scenario_step
+            baseColumnNames: entry_component_id
+            constraintName: fk_step_entry_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+        - createTable:
+            tableName: scenario_field_binding
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: template_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: field_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: component_id
+                  type: uuid
+              - column:
+                  name: binding_type
+                  type: VARCHAR(100)
+              - column:
+                  name: is_required
+                  type: BOOLEAN
+              - column:
+                  name: display_order
+                  type: INTEGER
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_field_binding
+            baseColumnNames: template_id
+            constraintName: fk_binding_template
+            referencedTableName: scenario_template
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_field_binding
+            baseColumnNames: field_id
+            constraintName: fk_binding_field
+            referencedTableName: ontology_field
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_field_binding
+            baseColumnNames: component_id
+            constraintName: fk_binding_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+        - createTable:
+            tableName: scenario_transition
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: scenario_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: from_step_id
+                  type: uuid
+              - column:
+                  name: to_step_id
+                  type: uuid
+              - column:
+                  name: condition_expression
+                  type: TEXT
+              - column:
+                  name: condition_config
+                  type: JSONB
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_transition
+            baseColumnNames: scenario_id
+            constraintName: fk_transition_scenario
+            referencedTableName: scenario
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: scenario_transition
+            baseColumnNames: from_step_id
+            constraintName: fk_transition_from_step
+            referencedTableName: scenario_step
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: scenario_transition
+            baseColumnNames: to_step_id
+            constraintName: fk_transition_to_step
+            referencedTableName: scenario_step
+            referencedColumnNames: id
+            onDelete: SET NULL
+        - addColumn:
+            tableName: ontology_field
+            columns:
+              - column:
+                  name: is_queryable
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_default_in_list
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_mandatory_in_list
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_default_in_card
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: list_component_id
+                  type: uuid
+              - column:
+                  name: form_component_id
+                  type: uuid
+        - addColumn:
+            tableName: ontology_relation
+            columns:
+              - column:
+                  name: relation_label
+                  type: VARCHAR(255)
+              - column:
+                  name: tab_id
+                  type: VARCHAR(255)
+              - column:
+                  name: display_sequence
+                  type: INTEGER
+              - column:
+                  name: is_default_in_card
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: component_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseTableName: ontology_field
+            baseColumnNames: list_component_id
+            constraintName: fk_field_list_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: ontology_field
+            baseColumnNames: form_component_id
+            constraintName: fk_field_form_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: ontology_relation
+            baseColumnNames: component_id
+            constraintName: fk_relation_component
+            referencedTableName: ui_component
+            referencedColumnNames: id
+  - changeSet:
+      id: NOBAI-400-migrate-ui-schema-data
+      author: ChatGPT
+      validCheckSum: ANY
+      preConditions:
+        - onFail: CONTINUE
+          tableExists:
+            tableName: ontology_field
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              WITH inserted_list AS (
+                  INSERT INTO ui_component (id, name, component_type, label, config, created_by, created_date, last_updated_by, last_updated_date)
+                  SELECT uuid_generate_v4() AS id,
+                         CONCAT('field_', f.id::text, '_list') AS name,
+                         'LIST_APPLET',
+                         COALESCE(f.ui_schema -> 'ListApplet' ->> 'label', f.name),
+                         f.ui_schema -> 'ListApplet',
+                         COALESCE(f.created_by, 'system'),
+                         f.created_date,
+                         COALESCE(f.last_updated_by, 'system'),
+                         f.last_updated_date
+                  FROM ontology_field f
+                  WHERE f.ui_schema -> 'ListApplet' IS NOT NULL
+                  RETURNING id, name
+              )
+              UPDATE ontology_field f
+              SET list_component_id = il.id
+              FROM inserted_list il
+              WHERE il.name = CONCAT('field_', f.id::text, '_list');
+        - sql:
+            splitStatements: false
+            sql: |
+              WITH inserted_form AS (
+                  INSERT INTO ui_component (id, name, component_type, label, config, created_by, created_date, last_updated_by, last_updated_date)
+                  SELECT uuid_generate_v4() AS id,
+                         CONCAT('field_', f.id::text, '_form') AS name,
+                         'FORM_VIEW',
+                         COALESCE(f.ui_schema -> 'FormView' ->> 'label', f.name),
+                         f.ui_schema -> 'FormView',
+                         COALESCE(f.created_by, 'system'),
+                         f.created_date,
+                         COALESCE(f.last_updated_by, 'system'),
+                         f.last_updated_date
+                  FROM ontology_field f
+                  WHERE f.ui_schema -> 'FormView' IS NOT NULL
+                  RETURNING id, name
+              )
+              UPDATE ontology_field f
+              SET form_component_id = iform.id
+              FROM inserted_form iform
+              WHERE iform.name = CONCAT('field_', f.id::text, '_form');
+        - sql:
+            splitStatements: false
+            sql: |
+              UPDATE ontology_field
+              SET is_queryable = COALESCE((ui_schema ->> 'isQueryable')::BOOLEAN, false),
+                  is_default_in_list = COALESCE((ui_schema ->> 'isDefaultInList')::BOOLEAN, false),
+                  is_mandatory_in_list = COALESCE((ui_schema ->> 'isMandatoryInList')::BOOLEAN, false),
+                  is_default_in_card = COALESCE((ui_schema ->> 'isDefaultInCard')::BOOLEAN, false);
+        - sql:
+            splitStatements: false
+            sql: |
+              WITH inserted_relation AS (
+                  INSERT INTO ui_component (id, name, component_type, label, config, created_by, created_date, last_updated_by, last_updated_date)
+                  SELECT uuid_generate_v4() AS id,
+                         CONCAT('relation_', r.id::text, '_component') AS name,
+                         'RELATION_VIEW',
+                         r.ui_schema ->> 'label',
+                         r.ui_schema,
+                         COALESCE(r.created_by, 'system'),
+                         r.created_date,
+                         COALESCE(r.last_updated_by, 'system'),
+                         r.last_updated_date
+                  FROM ontology_relation r
+                  WHERE r.ui_schema IS NOT NULL
+                  RETURNING id, name
+              )
+              UPDATE ontology_relation r
+              SET component_id = ir.id
+              FROM inserted_relation ir
+              WHERE ir.name = CONCAT('relation_', r.id::text, '_component');
+        - sql:
+            splitStatements: false
+            sql: |
+              UPDATE ontology_relation
+              SET relation_label = ui_schema ->> 'label',
+                  tab_id = ui_schema ->> 'tabId',
+                  display_sequence = NULLIF(ui_schema ->> 'displaySequence', '')::INTEGER,
+                  is_default_in_card = COALESCE((ui_schema ->> 'isDefaultInCard')::BOOLEAN, false);
+  - changeSet:
+      id: NOBAI-400-drop-legacy-ui-schema
+      author: ChatGPT
+      changes:
+        - dropColumn:
+            columnName: ui_schema
+            tableName: ontology_field
+        - dropColumn:
+            columnName: ui_schema
+            tableName: ontology_relation
+  - changeSet:
+      id: NOBAI-400-seed-default-components
+      author: ChatGPT
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              INSERT INTO ui_component (id, name, component_type, label, description, config, created_by, created_date, last_updated_by, last_updated_date)
+              VALUES (
+                  uuid_generate_v4(),
+                  'default-list-view-template',
+                  'VIEW_TEMPLATE',
+                  'Default List View',
+                  'Auto-imported list view skeleton',
+                  '{"view": {"id": "%%ENTITY_NAME%%.list.view", "name": "Список %%ENTITY_USER_FRIENDLY_NAME_PLURAL_LOWERCASE%%", "entity": "%%ENTITY_NAME%%", "applets": [{"type": "ListApplet", "title": "%%APPLET_TITLE%%", "source": {"body": {"page": "page", "fields": [], "perPage": "perPage"}, "method": "POST", "search": {"debounce": 300, "placeholder": "Поиск", "searchFields": "%%SEARCHABLE_FIELDS%%"}, "endpoint": "/entities/{view.entity}/search"}, "actions": [{"icon": "plus", "name": "add", "type": "button", "label": "Добавить", "action": {"type": "OPEN_FORM", "formId": "%%ENTITY_NAME%%.edit.form"}, "variant": "primary"}], "controls": [], "footerText": {"type": "templateText", "label": "Всего: {totalElements}"}, "description": "%%VIEW_DESCRIPTION%%", "detailViews": [], "listColumns": ["%%GENERATED_COLUMNS_PLACEHOLDER%%", {"name": "actions", "label": "Действия", "component": {"type": "actions", "components": [{"icon": "eye", "type": "button", "action": {"type": "OPEN_FORM", "formId": "%%ENTITY_NAME%%.edit.form", "params": {"id": "{id}"}}, "dataType": "iconUI"}, {"icon": "trash", "type": "button", "action": {"type": "OPEN_MODAL", "params": {"id": "{id}"}, "modalId": "confirmDeleteModal"}, "dataType": "iconUI"}]}, "displaySequence": 999}], "displaySequence": 1}], "version": "2.5", "previousView": "%%ENTITY_NAME%%.list.view"}, "modals": {"confirmDeleteModal": {"text": "Вы уверены, что хотите удалить {name}? Это действие необратимо.", "title": "Удаление %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%", "actions": [{"type": "button", "label": "Удалить", "action": {"type": "api", "method": "DELETE", "params": {"id": "{id}"}, "endpoint": "/entities/{view.entity}/{id}"}, "variant": "danger"}, {"type": "button", "label": "Отмена", "action": {"type": "CLOSE_MODAL"}, "variant": "secondary"}]}}, "suggestedPrompts": [{"label": "Добавить %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE%%", "promptText": "Создать нового %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%"}, {"label": "Редактировать данные", "promptText": "Редактировать %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%"}, {"label": "Открыть %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE%%", "promptText": "Открыть %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%"}, {"label": "Печать", "promptText": "Сформировать печатную форму для %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%"}]}'::jsonb,
+                  'system',
+                  NOW(),
+                  'system',
+                  NOW()
+              ),
+              (
+                  uuid_generate_v4(),
+                  'default-form-view-template',
+                  'VIEW_TEMPLATE',
+                  'Default Form View',
+                  'Auto-imported form view skeleton',
+                  '{"view": {"id": "%%ENTITY_NAME%%.form.view", "name": "Карточка %%ENTITY_USER_FRIENDLY_NAME_ACCUSATIVE_LOWERCASE%%", "entity": "%%ENTITY_NAME%%", "version": "1.0", "permissions": "%%ENTITY_PERMISSIONS%%", "previousView": "%%ENTITY_NAME%%.list.view", "sourceId": "%%ENTITY_ID%%", "applets": [{"type": "FormApplet", "title": "{name}", "description": "%%VIEW_DESCRIPTION%%", "source": {"method": "POST", "endpoint": "/entities/{view.entity}/{view.sourceId}", "body": {"fields": "%%FORM_FIELDS%%"}}, "actions": "%%FORM_ACTIONS%%", "card": "%%FORM_CARD_LAYOUT%%", "controls": "%%FORM_CONTROLS_LAYOUT%%", "detailViews": "%%FORM_DETAIL_VIEWS%%"}], "suggestedPrompts": "%%SUGGESTED_PROMPTS%%"}}'::jsonb,
+                  'system',
+                  NOW(),
+                  'system',
+                  NOW()
+              );

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -32,8 +33,25 @@ public class OntologyDto {
             private String userFriendlyName;
             private List<String> synonyms = new ArrayList<>();
             private DbInfo db;
-            private UiSchema ui;
             private Permissions permissions;
+
+            @JsonProperty("isQueryable")
+            private boolean queryable;
+
+            @JsonProperty("isDefaultInList")
+            private boolean defaultInList;
+
+            @JsonProperty("isMandatoryInList")
+            private boolean mandatoryInList;
+
+            @JsonProperty("isDefaultInCard")
+            private boolean defaultInCard;
+
+            @JsonProperty("listComponentId")
+            private UUID listComponentId;
+
+            @JsonProperty("formComponentId")
+            private UUID formComponentId;
 
             @Data
             @NoArgsConstructor
@@ -57,7 +75,12 @@ public class OntologyDto {
             private String targetColumn;
             private String joinCondition;
             private String fetchStrategy;
-            private UiRelationSchema ui;
+            private String label;
+            private String tabId;
+            @JsonProperty("isDefaultInCard")
+            private boolean defaultInCard;
+            private int displaySequence;
+            private UUID componentId;
         }
     }
 
@@ -86,92 +109,4 @@ public class OntologyDto {
         private boolean write = false;
     }
 
-    @Data
-    @NoArgsConstructor
-    public static class UiSchema {
-        @JsonProperty("isQueryable")
-        private boolean isQueryable;
-
-        @JsonProperty("isDefaultInList")
-        private boolean isDefaultInList;
-        @JsonProperty("isMandatoryInList")
-        private boolean isMandatoryInList;
-        @JsonProperty("isDefaultInCard")
-        private boolean isDefaultInCard;
-
-        @JsonProperty("ListApplet")
-        private ListApplet listApplet;
-
-        private FormView formView;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class UiRelationSchema {
-        private String label;
-        private String tabId;
-        @JsonProperty("isDefaultInCard")
-        private boolean isDefaultInCard;
-        private int displaySequence;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class ListApplet {
-        private String name;
-        private String label;
-        private ComponentSchema component; // Может быть composite
-        private int displaySequence;
-        @JsonProperty("isSearchable")
-        private boolean isSearchable;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class FormView {
-        private String component;
-        private String label;
-        private String section;
-        private int displaySequence;
-
-        @JsonProperty("isCardHeader")
-        private boolean cardHeader;
-
-        @JsonProperty("isControl")
-        private boolean control;
-
-        private boolean required;
-        private boolean disabled;
-        private ActionSchema action;
-        private List<ComponentSchema> components = new ArrayList<>();
-
-        private String dataType;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class ComponentSchema {
-        private String type;
-        private String dataType;
-        private String fieldName;
-        private ActionSchema action;
-        private List<ComponentSchema> components = new ArrayList<>();
-
-        // --- ДОБАВЛЕНО ЭТО:
-        private boolean required;
-        private boolean disabled;
-        // --- КОНЕЦ ДОБАВЛЕННОГО
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class ActionSchema {
-        private String type;
-        private String method;
-        private String endpoint;
-        private Map<String, String> params;
-        private String formId;
-        private String modalId;
-        private String variant;
-    }
 }

@@ -1,6 +1,5 @@
 package org.nobilis.nobichat.model.ontology;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,9 +14,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.nobilis.nobichat.model.BusinessEntity;
+import org.nobilis.nobichat.model.ui.UiComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +63,21 @@ public class OntologyRelationDefinition extends BusinessEntity {
     @Column(name = "fetch_strategy")
     private String fetchStrategy;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "ui_schema", columnDefinition = "jsonb")
-    private JsonNode uiSchema;
+    @Column(name = "relation_label")
+    private String label;
+
+    @Column(name = "tab_id")
+    private String tabId;
+
+    @Column(name = "display_sequence")
+    private Integer displaySequence;
+
+    @Column(name = "is_default_in_card", nullable = false)
+    private boolean defaultInCard;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "component_id")
+    private UiComponent component;
 
     @OneToMany(mappedBy = "relation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OntologyRelationSynonym> synonyms = new ArrayList<>();
