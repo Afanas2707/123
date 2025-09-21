@@ -1,7 +1,5 @@
 package org.nobilis.nobichat.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.nobilis.nobichat.dto.ontology.OntologyDto;
@@ -13,6 +11,7 @@ import org.nobilis.nobichat.model.ontology.OntologyFieldSynonym;
 import org.nobilis.nobichat.model.ontology.OntologyPermission;
 import org.nobilis.nobichat.model.ontology.OntologyRelationDefinition;
 import org.nobilis.nobichat.model.ontology.OntologyRelationSynonym;
+import org.nobilis.nobichat.model.ui.UiComponent;
 import org.nobilis.nobichat.repository.ontology.OntologyDbBindingRepository;
 import org.nobilis.nobichat.repository.ontology.OntologyEntityRepository;
 import org.nobilis.nobichat.repository.ontology.OntologyEntitySynonymRepository;
@@ -21,6 +20,7 @@ import org.nobilis.nobichat.repository.ontology.OntologyFieldSynonymRepository;
 import org.nobilis.nobichat.repository.ontology.OntologyPermissionRepository;
 import org.nobilis.nobichat.repository.ontology.OntologyRelationRepository;
 import org.nobilis.nobichat.repository.ontology.OntologyRelationSynonymRepository;
+import org.nobilis.nobichat.repository.ui.UiComponentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class OntologySchemaPersistenceService {
     private final OntologyRelationSynonymRepository ontologyRelationSynonymRepository;
     private final OntologyPermissionRepository ontologyPermissionRepository;
     private final OntologyDbBindingRepository ontologyDbBindingRepository;
-    private final ObjectMapper objectMapper;
+    private final UiComponentRepository uiComponentRepository;
 
     @Transactional
     public void replaceSchema(OntologyDto ontologyDto) {
@@ -130,7 +131,12 @@ public class OntologySchemaPersistenceService {
         fieldDefinition.setUserFriendlyName(fieldSchema.getUserFriendlyName());
         fieldDefinition.setPermissions(createPermissions(fieldSchema.getPermissions()));
         fieldDefinition.setDbBinding(createDbBinding(fieldSchema.getDb()));
-        fieldDefinition.setUiSchema(convertToJson(fieldSchema.getUi()));
+        fieldDefinition.setQueryable(fieldSchema.isQueryable());
+        fieldDefinition.setDefaultInList(fieldSchema.isDefaultInList());
+        fieldDefinition.setMandatoryInList(fieldSchema.isMandatoryInList());
+        fieldDefinition.setDefaultInCard(fieldSchema.isDefaultInCard());
+        fieldDefinition.setListComponent(resolveComponent(fieldSchema.getListComponentId()));
+        fieldDefinition.setFormComponent(resolveComponent(fieldSchema.getFormComponentId()));
 
         if (fieldSchema.getSynonyms() != null) {
             fieldSchema.getSynonyms().stream()
@@ -162,7 +168,11 @@ public class OntologySchemaPersistenceService {
             relationDefinition.setTargetColumn(relationSchema.getTargetColumn());
             relationDefinition.setJoinCondition(relationSchema.getJoinCondition());
             relationDefinition.setFetchStrategy(relationSchema.getFetchStrategy());
-            relationDefinition.setUiSchema(convertToJson(relationSchema.getUi()));
+            relationDefinition.setLabel(relationSchema.getLabel());
+            relationDefinition.setTabId(relationSchema.getTabId());
+            relationDefinition.setDefaultInCard(relationSchema.isDefaultInCard());
+            relationDefinition.setDisplaySequence(relationSchema.getDisplaySequence());
+            relationDefinition.setComponent(resolveComponent(relationSchema.getComponentId()));
 
             if (relationSchema.getSynonyms() != null) {
                 relationSchema.getSynonyms().stream()
@@ -201,10 +211,10 @@ public class OntologySchemaPersistenceService {
         return dbBinding;
     }
 
-    private JsonNode convertToJson(Object value) {
-        if (value == null) {
+    private UiComponent resolveComponent(UUID componentId) {
+        if (componentId == null) {
             return null;
         }
-        return objectMapper.valueToTree(value);
+        return uiComponentRepository.findById(componentId).orElse(null);
     }
 }

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ public class LlmPromptService {
     private final OntologyService ontologyService;
     private final LLMService llmService; // Добавляем LLMService для выполнения запросов
     private final ApplicationEventPublisher eventPublisher; // Добавляем для публикации событий
+    private final UiComponentService uiComponentService;
 
     /**
      * Формирует промпт для LLM для извлечения намерения, сущности и Query-структуры.
@@ -306,22 +308,10 @@ public class LlmPromptService {
                         map.put("description", f.getDescription());
                         map.put("userFriendlyName", f.getUserFriendlyName());
                         map.put("synonyms", f.getSynonyms() != null ? f.getSynonyms() : Collections.emptyList());
-
-                        if (f.getUi() != null) {
-                            map.put("isDefaultInList", f.getUi().isDefaultInList());
-                            map.put("isMandatoryInList", f.getUi().isMandatoryInList());
-                            map.put("isQueryable", f.getUi().isQueryable());
-                            if (f.getUi().getListApplet() != null) {
-                                map.put("isSearchableInListApplet", f.getUi().getListApplet().isSearchable());
-                            } else {
-                                map.put("isSearchableInListApplet", false);
-                            }
-                        } else {
-                            map.put("isDefaultInList", false);
-                            map.put("isMandatoryInList", false);
-                            map.put("isQueryable", false);
-                            map.put("isSearchableInListApplet", false);
-                        }
+                        map.put("isDefaultInList", f.isDefaultInList());
+                        map.put("isMandatoryInList", f.isMandatoryInList());
+                        map.put("isQueryable", f.isQueryable());
+                        map.put("isSearchableInListApplet", isListFieldSearchable(f));
                         return map;
                     })
                     .collect(Collectors.toList());
@@ -383,17 +373,18 @@ public class LlmPromptService {
                     """;
 
             List<Map<String, Object>> simplifiedFields = entitySchema.getFields().stream()
-                    .filter(f -> f.getUi() != null && f.getUi().getFormView() != null)
-                    .map(f -> {
-                        Map<String, Object> map = new LinkedHashMap<>();
-                        map.put("name", f.getName());
-                        map.put("type", f.getType());
-                        map.put("description", f.getDescription());
-                        map.put("userFriendlyName", f.getUserFriendlyName());
-                        map.put("synonyms", f.getSynonyms());
-                        map.put("required", f.getUi().getFormView().isRequired());
-                        return map;
-                    })
+                    .map(field -> uiComponentService.getConfig(field.getFormComponentId())
+                            .map(config -> {
+                                Map<String, Object> map = new LinkedHashMap<>();
+                                map.put("name", field.getName());
+                                map.put("type", field.getType());
+                                map.put("description", field.getDescription());
+                                map.put("userFriendlyName", field.getUserFriendlyName());
+                                map.put("synonyms", field.getSynonyms());
+                                map.put("required", config.path("required").asBoolean(false));
+                                return map;
+                            }))
+                    .flatMap(Optional::stream)
                     .collect(Collectors.toList());
 
             String fieldsJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(simplifiedFields);
@@ -467,5 +458,11 @@ public class LlmPromptService {
             cleaned = cleaned.substring(0, cleaned.length() - 3);
         }
         return cleaned.trim();
+    }
+
+    private boolean isListFieldSearchable(OntologyDto.EntitySchema.FieldSchema field) {
+        return uiComponentService.getConfig(field.getListComponentId())
+                .map(config -> config.path("isSearchable").asBoolean(false))
+                .orElse(false);
     }
 }
