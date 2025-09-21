@@ -22,6 +22,10 @@ public class Ontology extends BusinessEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    /**
+     * @deprecated Legacy JSON storage retained only for migration to the new relational schema.
+     */
+    @Deprecated
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "json_data", columnDefinition = "jsonb")
     private OntologyDto schema;

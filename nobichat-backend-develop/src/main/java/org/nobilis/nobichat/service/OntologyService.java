@@ -1,6 +1,7 @@
 package org.nobilis.nobichat.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,15 @@ import org.nobilis.nobichat.dto.ontology.EntityMetaData;
 import org.nobilis.nobichat.dto.ontology.OntologyDto;
 import org.nobilis.nobichat.exception.ResourceNotFoundException;
 import org.nobilis.nobichat.feign.ConfluenceClient;
-import org.nobilis.nobichat.model.Ontology;
-import org.nobilis.nobichat.repository.OntologyStorageRepository;
+import org.nobilis.nobichat.model.ontology.OntologyDbBinding;
+import org.nobilis.nobichat.model.ontology.OntologyEntityDefinition;
+import org.nobilis.nobichat.model.ontology.OntologyEntitySynonym;
+import org.nobilis.nobichat.model.ontology.OntologyFieldDefinition;
+import org.nobilis.nobichat.model.ontology.OntologyFieldSynonym;
+import org.nobilis.nobichat.model.ontology.OntologyPermission;
+import org.nobilis.nobichat.model.ontology.OntologyRelationDefinition;
+import org.nobilis.nobichat.model.ontology.OntologyRelationSynonym;
+import org.nobilis.nobichat.repository.ontology.OntologyEntityRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -25,7 +33,9 @@ import org.springframework.util.FileCopyUtils;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,7 +47,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OntologyService {
 
-    private final OntologyStorageRepository ontologyRepository;
+    private final OntologyEntityRepository ontologyEntityRepository;
+    private final OntologySchemaPersistenceService schemaPersistenceService;
     private final ObjectMapper objectMapper;
     private final ConfluenceClient confluenceClient;
 
@@ -73,17 +84,119 @@ public class OntologyService {
     }
 
     private OntologyDto getOntologyFromDb() {
-        return ontologyRepository.findFirstByOrderByCreationDateDesc()
-                .map(Ontology::getSchema)
-                .orElseThrow(() -> new ResourceNotFoundException("Отсутствует онтология в БД."));
+        List<OntologyEntityDefinition> entityDefinitions = ontologyEntityRepository.findAll();
+        if (entityDefinitions.isEmpty()) {
+            throw new ResourceNotFoundException("Отсутствует онтология в БД.");
+        }
+        return mapToDto(entityDefinitions);
+    }
+
+    private OntologyDto mapToDto(List<OntologyEntityDefinition> entityDefinitions) {
+        OntologyDto dto = new OntologyDto();
+        for (OntologyEntityDefinition entityDefinition : entityDefinitions) {
+            dto.getEntities().put(entityDefinition.getName(), mapEntityDefinition(entityDefinition));
+        }
+        return dto;
+    }
+
+    private OntologyDto.EntitySchema mapEntityDefinition(OntologyEntityDefinition entityDefinition) {
+        OntologyDto.EntitySchema entitySchema = new OntologyDto.EntitySchema();
+        entitySchema.setMeta(mapMeta(entityDefinition));
+        entitySchema.setFields(entityDefinition.getFields().stream()
+                .map(this::mapField)
+                .collect(Collectors.toCollection(ArrayList::new)));
+
+        Map<String, OntologyDto.EntitySchema.RelationSchema> relations = new HashMap<>();
+        for (OntologyRelationDefinition relationDefinition : entityDefinition.getRelations()) {
+            relations.put(relationDefinition.getName(), mapRelation(relationDefinition));
+        }
+        entitySchema.setRelations(relations);
+        return entitySchema;
+    }
+
+    private OntologyDto.Meta mapMeta(OntologyEntityDefinition entityDefinition) {
+        OntologyDto.Meta meta = new OntologyDto.Meta();
+        meta.setUserFriendlyName(entityDefinition.getUserFriendlyName());
+        meta.setUserFriendlyNameAccusative(entityDefinition.getUserFriendlyNameAccusative());
+        meta.setUserFriendlyNamePlural(entityDefinition.getUserFriendlyNamePlural());
+        meta.setUserFriendlyNamePluralGenitive(entityDefinition.getUserFriendlyNamePluralGenitive());
+        meta.setEntityNamePlural(entityDefinition.getEntityNamePlural());
+        meta.setDescription(entityDefinition.getDescription());
+        meta.setPrimaryTable(entityDefinition.getPrimaryTable());
+        meta.setDefaultSearchField(entityDefinition.getDefaultSearchField());
+        meta.setSynonyms(entityDefinition.getSynonyms().stream()
+                .map(OntologyEntitySynonym::getValue)
+                .collect(Collectors.toList()));
+        meta.setPermissions(mapPermissions(entityDefinition.getPermissions()));
+        return meta;
+    }
+
+    private OntologyDto.EntitySchema.FieldSchema mapField(OntologyFieldDefinition fieldDefinition) {
+        OntologyDto.EntitySchema.FieldSchema fieldSchema = new OntologyDto.EntitySchema.FieldSchema();
+        fieldSchema.setName(fieldDefinition.getName());
+        fieldSchema.setType(fieldDefinition.getType());
+        fieldSchema.setDescription(fieldDefinition.getDescription());
+        fieldSchema.setUserFriendlyName(fieldDefinition.getUserFriendlyName());
+        fieldSchema.setSynonyms(fieldDefinition.getSynonyms().stream()
+                .map(OntologyFieldSynonym::getValue)
+                .collect(Collectors.toList()));
+        fieldSchema.setPermissions(mapPermissions(fieldDefinition.getPermissions()));
+        fieldSchema.setDb(mapDb(fieldDefinition.getDbBinding()));
+        fieldSchema.setUi(convertFromJson(fieldDefinition.getUiSchema(), OntologyDto.UiSchema.class));
+        return fieldSchema;
+    }
+
+    private OntologyDto.EntitySchema.RelationSchema mapRelation(OntologyRelationDefinition relationDefinition) {
+        OntologyDto.EntitySchema.RelationSchema relationSchema = new OntologyDto.EntitySchema.RelationSchema();
+        relationSchema.setType(relationDefinition.getType());
+        relationSchema.setTargetEntity(relationDefinition.getTargetEntityName());
+        relationSchema.setSourceTable(relationDefinition.getSourceTable());
+        relationSchema.setSourceColumn(relationDefinition.getSourceColumn());
+        relationSchema.setTargetTable(relationDefinition.getTargetTable());
+        relationSchema.setTargetColumn(relationDefinition.getTargetColumn());
+        relationSchema.setJoinCondition(relationDefinition.getJoinCondition());
+        relationSchema.setFetchStrategy(relationDefinition.getFetchStrategy());
+        relationSchema.setSynonyms(relationDefinition.getSynonyms().stream()
+                .map(OntologyRelationSynonym::getValue)
+                .collect(Collectors.toList()));
+        relationSchema.setUi(convertFromJson(relationDefinition.getUiSchema(), OntologyDto.UiRelationSchema.class));
+        return relationSchema;
+    }
+
+    private OntologyDto.Permissions mapPermissions(OntologyPermission permission) {
+        if (permission == null) {
+            return null;
+        }
+        return new OntologyDto.Permissions(permission.isCanRead(), permission.isCanWrite());
+    }
+
+    private OntologyDto.EntitySchema.FieldSchema.DbInfo mapDb(OntologyDbBinding dbBinding) {
+        if (dbBinding == null) {
+            return null;
+        }
+        OntologyDto.EntitySchema.FieldSchema.DbInfo dbInfo = new OntologyDto.EntitySchema.FieldSchema.DbInfo();
+        dbInfo.setTable(dbBinding.getTableName());
+        dbInfo.setColumn(dbBinding.getColumnName());
+        dbInfo.setIsPrimaryKey(dbBinding.getPrimaryKey());
+        dbInfo.setRelationName(dbBinding.getRelationName());
+        return dbInfo;
+    }
+
+    private <T> T convertFromJson(JsonNode node, Class<T> type) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        try {
+            return objectMapper.treeToValue(node, type);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Не удалось преобразовать сохранённую JSON-схему UI в тип " + type.getSimpleName(), e);
+        }
     }
 
     public OntologyDto.EntitySchema getEntitySchema(String entityName) {
-        OntologyDto dto = getOntologyFromDb();
-        if (dto == null || !dto.getEntities().containsKey(entityName)) {
-            throw new ResourceNotFoundException("Схема для сущности '" + entityName + "' не найдена.");
-        }
-        return dto.getEntities().get(entityName);
+        OntologyEntityDefinition entityDefinition = ontologyEntityRepository.findByName(entityName)
+                .orElseThrow(() -> new ResourceNotFoundException("Схема для сущности '" + entityName + "' не найдена."));
+        return mapEntityDefinition(entityDefinition);
     }
 
     public List<OntologyDto.EntitySchema.FieldSchema> getFieldsForEntity(String entityName) {
@@ -98,17 +211,14 @@ public class OntologyService {
         return fields;
     }
 
-
     public OntologyDto getCurrentOntologySchema() {
         return getOntologyFromDb();
     }
 
     @Transactional
     public OntologyDto updateOntology(OntologyDto newOntologyDtoSchema) {
-        Ontology storage = ontologyRepository.findFirstByOrderByCreationDateDesc()
-                .orElseThrow(() -> new ResourceNotFoundException("Отсутствует онтология в БД."));
-        storage.setSchema(newOntologyDtoSchema);
-        return ontologyRepository.save(storage).getSchema();
+        schemaPersistenceService.replaceSchema(newOntologyDtoSchema);
+        return getOntologyFromDb();
     }
 
     public EntityMetaData getEntityMetaData(String entityName) {
@@ -120,38 +230,21 @@ public class OntologyService {
         String userFriendlyNamePlural = Optional.ofNullable(meta.getUserFriendlyNamePlural()).orElse("Элементы");
         String userFriendlyNameAccusative = Optional.ofNullable(meta.getUserFriendlyNameAccusative()).orElse(userFriendlyName);
         String userFriendlyNamePluralGenitive = Optional.ofNullable(meta.getUserFriendlyNamePluralGenitive())
-                .orElse(userFriendlyNamePlural.toLowerCase(Locale.ROOT));
+                .orElse(userFriendlyNamePlural);
+        String entityNamePlural = Optional.ofNullable(meta.getEntityNamePlural()).orElse(entityName + "s");
 
-        OntologyDto.Permissions entityPermissions = Optional.ofNullable(meta.getPermissions())
-                .orElse(new OntologyDto.Permissions());
+        String entityNamePluralFormatted = Optional.ofNullable(entityNamePlural)
+                .map(name -> name.toLowerCase(Locale.ROOT).replace(" ", "_"))
+                .orElse(entityName.toLowerCase(Locale.ROOT));
 
         return EntityMetaData.builder()
                 .entityName(entityName)
-                .viewTitle(userFriendlyNamePlural)
-                .viewDescription(Optional.ofNullable(meta.getDescription()).orElse(""))
+                .entityNamePlural(entityNamePluralFormatted)
                 .userFriendlyName(userFriendlyName)
-                .userFriendlyNameAccusative(userFriendlyNameAccusative)
-                .userFriendlyNameAccusativeLowercase(userFriendlyNameAccusative.toLowerCase(Locale.ROOT))
                 .userFriendlyNamePlural(userFriendlyNamePlural)
+                .userFriendlyNameAccusative(userFriendlyNameAccusative)
                 .userFriendlyNamePluralGenitive(userFriendlyNamePluralGenitive)
-                .userFriendlyNameLowercase(userFriendlyName.toLowerCase(Locale.ROOT))
-                .permissions(entityPermissions)
-                .defaultSearchField(meta.getDefaultSearchField())
-                .synonyms(Optional.ofNullable(meta.getSynonyms()).orElse(Collections.emptyList()))
                 .build();
-    }
-
-    public List<String> getSearchableFieldsForUI(String entityName) {
-        List<OntologyDto.EntitySchema.FieldSchema> fields = getFieldsForEntity(entityName);
-        if (fields.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return fields.stream()
-                .filter(field -> field.getUi() != null &&
-                        field.getUi().getListApplet() != null &&
-                        field.getUi().getListApplet().isSearchable())
-                .map(OntologyDto.EntitySchema.FieldSchema::getName)
-                .collect(Collectors.toList());
     }
 
     public List<OntologyDto.EntitySchema.FieldSchema> getAllQueryableFields() {
@@ -161,7 +254,8 @@ public class OntologyService {
         }
 
         return ontologyDto.getEntities().values().stream()
-                .flatMap(entitySchema -> Optional.ofNullable(entitySchema.getFields()).orElse(Collections.emptyList()).stream())
+                .flatMap(entitySchema -> Optional.ofNullable(entitySchema.getFields())
+                        .orElse(Collections.emptyList()).stream())
                 .filter(field -> field.getUi() != null && field.getUi().isQueryable())
                 .collect(Collectors.toList());
     }
@@ -193,9 +287,8 @@ public class OntologyService {
         if (entityName == null) {
             return false;
         }
-        return getOntologyFromDb().getEntities().containsKey(entityName);
+        return ontologyEntityRepository.findByName(entityName).isPresent();
     }
-
 
     @Transactional
     public OntologyDto syncOntologyFromConfluence() {
@@ -212,7 +305,6 @@ public class OntologyService {
             log.error("Непредвиденная ошибка при запросе к Confluence API (pageId: {}): {}", ontologyPageId, e.getMessage(), e);
             throw new RuntimeException("Не удалось получить онтологию из Confluence: " + e.getMessage(), e);
         }
-
 
         if (confluenceResponse == null || confluenceResponse.getBody() == null ||
                 confluenceResponse.getBody().getStorage() == null ||
