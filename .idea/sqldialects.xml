@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/nobichat-backend-developp/.idea/dataSources/a7dacc67-43d2-42fb-bf5f-0074d9d250d7/storage_v2/_staging_/database/nobichat_db._b-4bw/schema/public.abK9xQ/routine/set_last_updated_fields.SN_SNA.sql" dialect="PostgreSQL" />
-  </component>
-</project>
