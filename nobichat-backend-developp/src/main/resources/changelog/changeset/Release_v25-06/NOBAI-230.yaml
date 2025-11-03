@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: chat-messages-add-frontend-context-drop-deprecated-cols
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: frontend_template_key
+                  type: VARCHAR(255)
+              - column:
+                  name: frontend_entity_name
+                  type: VARCHAR(255)
+              - column:
+                  name: frontend_source_id
+                  type: UUID

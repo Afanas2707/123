@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-scenario-table-and-add-workflow-cols
+      author: your_name
+      changes:
+        - createTable:
+            tableName: scenarios
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: definition
+                  type: JSONB
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_date
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_updated_by
+                  type: VARCHAR(255)
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITH TIME ZONE
+
+        - addColumn:
+            tableName: user_chat_sessions
+            columns:
+              - column:
+                  name: active_scenario_id
+                  type: UUID
+              - column:
+                  name: current_step_name
+                  type: VARCHAR(255)
+              - column:
+                  name: scenario_context_json
+                  type: TEXT
+
+  - changeSet:
+      id: create-scenario-audit-trigger
+      author: Alexey Afanasievskiy
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              CREATE TRIGGER scenario_audit_trigger
+              BEFORE INSERT OR UPDATE ON scenarios
+              FOR EACH ROW EXECUTE FUNCTION set_last_updated_fields();

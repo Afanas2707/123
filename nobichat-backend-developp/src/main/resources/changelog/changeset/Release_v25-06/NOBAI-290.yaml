@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: cleanup-chat-messages-table
+      author: Alexey Afanasievskiy
+      changes:
+        - dropColumn:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: response_schema_snapshot
+              - column:
+                  name: mode
+              - column:
+                  name: template_id
+              - column:
+                  name: frontend_template_key
+              - column:
+                  name: frontend_entity_name
+              - column:
+                  name: frontend_source_id

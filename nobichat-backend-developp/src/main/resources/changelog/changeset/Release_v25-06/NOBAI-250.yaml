@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: correct-scenario-draft-schema
+      author: Alexey Afanasievskiy
+      changes:
+        - renameColumn:
+            tableName: scenario_drafts
+            oldColumnName: draft_json
+            newColumnName: definition
+            columnDataType: JSONB
+
+
+        - dropColumn:
+            tableName: scenario_drafts
+            columnName: session_id
+
+        - dropColumn:
+            tableName: scenario_drafts
+            columnName: status
+
+        - dropColumn:
+            tableName: scenario_drafts
+            columnName: missing_info_prompt
+
+        - addColumn:
+            tableName: scenario_drafts
+            columns:
+              - column:
+                  name: draft_name
+                  type: VARCHAR(255)

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constructor-and-preview-mode-columns-to-user-chat-sessions
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: user_chat_sessions
+            columns:
+              - column:
+                  name: is_in_preview_mode
+                  type: boolean
+              - column:
+                  name: current_preview_step_name
+                  type: varchar(255)

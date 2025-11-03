@@ -1,0 +1,112 @@
+{
+  "currentState": {
+    "message": "Шаг 1: Ввод данных\n\nВы вошли в режим просмотра. Используйте 'дальше' и 'назад' для навигации, или продолжайте редактирование, чтобы выйти из просмотра.",
+    "sessionId": "4c904578-f418-4867-b4e4-8a61a63fccae",
+    "uiSchema": {
+      "name": "Определить лицо принимающее решение",
+      "description": "Подсказка",
+      "view": [
+        {
+          "template": "scenario/scenario-step-form/scenario-step-form",
+          "entity": "customer",
+          "sourceId": "441e0212-88a2-40bb-8521-ebc86590fd07",
+          "displaySequence": 1,
+          "props": {
+            "title": "Определение канала коммуникации",
+            "description": "Подсказка",
+            "iconUrl": null,
+            "source": null,
+            "fields": [
+              {
+                "type": "text",
+                "fieldName": "name",
+                "label": "Наименование клиента",
+                "required": true,
+                "displaySequence": 1
+              },
+              {
+                "type": "checkbox",
+                "fieldName": "active",
+                "label": "Статус",
+                "required": true,
+                "displaySequence": 2
+              },
+              {
+                "type": "text",
+                "fieldName": "supplierCode",
+                "label": "Код клиента",
+                "required": true,
+                "displaySequence": 5
+              },
+              {
+                "type": "text",
+                "fieldName": "directorName",
+                "label": "Руководитель клиента",
+                "required": true,
+                "displaySequence": 7
+              },
+              {
+                "type": "text",
+                "fieldName": "inn",
+                "label": "ИНН",
+                "required": true,
+                "displaySequence": 9
+              },
+              {
+                "type": "text",
+                "fieldName": "contractNumber",
+                "label": "Номер договора с клиентом",
+                "displaySequence": 12
+              },
+              {
+                "type": "date",
+                "fieldName": "creationDate",
+                "label": "Дата создания",
+                "required": true,
+                "displaySequence": 3
+              }
+            ],
+            "step": {
+              "id": "step-1-comm-channel",
+              "stepNum": 1,
+              "title": "Определение канала коммуникации",
+              "description": "Какая-либо подсказка",
+              "titleCondition": "Необходимо определить",
+              "descCondition": "Необходимо определить - необязательное описание для подсказки",
+              "isApproved": false,
+              "type": "CONFIGURATION",
+              "config": {
+                "fields": [
+                  {
+                    "type": "checkbox",
+                    "fieldName": "active",
+                    "label": "Клиент представил контакты по эл.почте",
+                    "required": true,
+                    "displaySequence": 2
+                  }
+                ],
+                "buttons": [
+                  {
+                    "type": "button",
+                    "label": "Продолжить",
+                    "action": {
+                      "type": "scenario_step/step-2-comm-channel"
+                    },
+                    "permissions": {
+                      "read": true,
+                      "write": true
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "permissions": {
+        "read": true,
+        "write": true
+      }
+    }
+  }
+}

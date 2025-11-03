@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-constructor-mode-to-sessions
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: user_chat_sessions
+            columns:
+              - column:
+                  name: is_in_constructor_mode
+                  type: boolean
+              - column:
+                  name: active_draft_id
+                  type: uuid
+
+        - addForeignKeyConstraint:
+            baseColumnNames: active_draft_id
+            baseTableName: user_chat_sessions
+            constraintName: fk_session_active_draft
+            referencedColumnNames: id
+            referencedTableName: scenario_drafts
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            deferrable: true
+            initiallyDeferred: true

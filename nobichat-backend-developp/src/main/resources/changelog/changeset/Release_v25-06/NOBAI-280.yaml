@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-response-dto-snapshot-to-chat-messages
+      author: Alexey Afanasievskiy
+      changes:
+        - addColumn:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: response_dto_json
+                  type: jsonb
